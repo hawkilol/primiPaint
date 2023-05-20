@@ -1,1 +1,1 @@
-# primiPaint
+# Primitivas computação grafica
