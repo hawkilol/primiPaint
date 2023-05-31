@@ -46,9 +46,9 @@ buttons-container {
 }
 #canvas {
   display: block;
-  margin: 0 auto;
+  margin: 60 auto;
   border: 2px solid black;
-  margin-right: 600px;
+  
 
   float: right;
 }

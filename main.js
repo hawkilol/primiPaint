@@ -10,7 +10,7 @@ let isPainting = false;
 let startXY = [0, 0];
 let endXY = [0, 0];
 let pointsArray = [];
-let bezierResolution = 1000;
+let bezierResolution = 100;
 let mode = "paint";
 let pixelQueue = []; // Queue to store the pixel fill operations
 
@@ -158,7 +158,6 @@ function bresenham(x1, y1, x2, y2) {
   else {
     // passing argument as 1 to plot (y,x)
     XYS = plotPixel(y1, x1, y2, x2, dy, dx, 1);
-    //XYS = plotPixel(x1, y1, x2, y2, dx, dy, 1);
     console.log("1");
   }
   coordsList = XYS;
@@ -166,9 +165,6 @@ function bresenham(x1, y1, x2, y2) {
   let xPlot = 0;
   let yPlot = 0;
   const numbers = [1, 2, 3, 4, 5];
-  const length = numbers.length;
-  //console.log(length);
-  // console.log(coordsList.length);
   for (let i = 0; i < coordsList.length; i++) {
     xy = coordsList[i];
     xPlot = xy[0];
@@ -221,10 +217,7 @@ function polyLine(coordsArr) {
     xyCurr = [0, 0];
 
   for (var i = 1; i < coordsArr.length; i++) {
-    //x = xyPrev[0];
-    //y = xyPrev[1];
     xyCurr = coordsArr[i];
-    console.log("wtf");
     bresenham(xyPrev[0], xyPrev[1], xyCurr[0], xyCurr[1]);
     xyPrev = coordsArr[i];
   }
@@ -263,10 +256,7 @@ function getRectColorRgb(x, y) {
     pixelSize,
     pixelSize
   );
-
   const color = `rgb(${imageData.data[0]}, ${imageData.data[1]}, ${imageData.data[2]})`;
-
-  //console.log(color);
   return color;
 }
 
@@ -274,7 +264,6 @@ function getRectColorRgb(x, y) {
 
 function boundFill(x, y, color, color1) {
   const colorCurr = getRectColor(x, y);
-  //console.log(colorCurr);
   if (colorCurr !== color && colorCurr !== color1) {
     paintPixelColor(x, y, color);
     boundFill(x + 1, y, color, color1);
@@ -285,7 +274,6 @@ function boundFill(x, y, color, color1) {
 }
 function boundFill8(x, y, color, color1) {
   const colorCurr = getRectColor(x, y);
-  //console.log(colorCurr);
   if (colorCurr !== color && colorCurr !== color1) {
     paintPixelColor(x, y, color);
     boundFill8(x + 1, y, color, color1);
@@ -328,37 +316,6 @@ function recursiveFill(x, y, color, startColor, visited) {
   }
 }
 
-function scan(lx, rx, y, stack, colour) {
-  var stackLocal = [{ x, y, colour }];
-  stackLocal = stack;
-  for (let i = lx; i < rx; i++) {
-    // if (isValidSquare(i, y, colour)) {
-    stackLocal.push({ x: i, y: y, colour: colour });
-  }
-  return stackLocal;
-}
-function fill(x, y, colour) {
-  let stack = [{ x, y, colour }];
-
-  while (stack.length > 0) {
-    let { x, y, colour } = stack.pop();
-    let lx = x;
-
-    while (isValidSquare(lx, y, colour)) {
-      grid[lx][y] = "#367588";
-      lx = lx - 1;
-    }
-
-    let rx = x + 1;
-    while (isValidSquare(rx, y, colour)) {
-      grid[rx][y] = "#367588";
-      rx = rx + 1;
-    }
-    stack = scan(lx, rx - 1, y + 1, stack, colour);
-    stack = scan(lx, rx - 1, y - 1, stack, colour);
-  }
-  return;
-}
 function floodFill2(x, y, color) {
   const stack = [];
   stack.push({ x, y });
@@ -382,25 +339,6 @@ function floodFill2(x, y, color) {
     }
   }
 }
-
-// function floodStackFill(x, y, color, color1) {
-//   const stack = [];
-//   stack.push({ x, y });
-
-//   while (stack.length > 0) {
-//     const { x, y } = stack.pop();
-//     const colorCurr = getRectColor(x, y);
-
-//     if (colorCurr !== color && colorCurr !== color1) {
-//       paintPixelColor(x, y, color);
-
-//       stack.push({ x: x + 1, y });
-//       stack.push({ x: x, y: y + 1 });
-//       stack.push({ x: x - 1, y });
-//       stack.push({ x, y: y - 1 });
-//     }
-//   }
-// }
 
 function stackFill8(x, y, color, color1) {
   const stack = [];
@@ -433,6 +371,63 @@ function binomialCoefficient(n, k) {
   }
   return result;
 }
+
+// Function to calculate the Bezier curve point
+function calculateBezierPoint(t, points) {
+  const n = points.length - 1;
+  let x = 0;
+  let y = 0;
+
+  for (let i = 0; i <= n; i++) {
+    const coefficient =
+      binomialCoefficient(n, i) * Math.pow(t, i) * Math.pow(1 - t, n - i);
+    x += points[i][0] * coefficient;
+    y += points[i][1] * coefficient;
+  }
+
+  return { x, y };
+}
+
+// Function to plot the Bezier curve on a grid
+function paintBezierCurve(points, resolution) {
+  const resolution1 = resolution * points.length;
+  const step = 1 / resolution1;
+  const visited = new Set();
+
+  for (let t = step; t <= 1; t += step) {
+    const rect = canvas.getBoundingClientRect();
+
+    const { x, y } = calculateBezierPoint(t, points);
+
+    const offsetX = x - rect.left - canvas.width / 2;
+    const offsetY = rect.top + canvas.height / 2 - y;
+    const x1 = Math.floor(offsetX / pixelSize);
+    const y1 = Math.floor(offsetY / pixelSize);
+
+    let gridX = Math.floor(width / 2) + x1;
+    let gridY = Math.floor(height / 2) - y1;
+    gridX = Math.floor(x);
+    gridY = Math.floor(y);
+
+    const key = `${gridX},${gridY}`;
+    if (!visited.has(key)) {
+      paintPixelCoords(gridX, gridY);
+      visited.add(key);
+    }
+  }
+}
+
+// const points = [
+//   [50, 100],
+//   [200, 50],
+//   [300, 150],
+//   [450, 100]
+// ];
+
+//const resolution = 100; // Increase the resolution for smoother curves
+
+//paintBezierCurve([[50, 100],[200, 50],[300, 150],[450, 100]], 100);
+
 //sweep flood fill
 function scanFill(startX, startY, replacementColor) {
   //const canvasWidth = canvas.width;
@@ -572,64 +567,6 @@ function scanFill1(startX, startY, replacementColor) {
 //     }
 //   }
 // }
-
-// Function to calculate the Bezier curve point
-function calculateBezierPoint(t, points) {
-  const n = points.length - 1;
-  let x = 0;
-  let y = 0;
-
-  for (let i = 0; i <= n; i++) {
-    const coefficient =
-      binomialCoefficient(n, i) * Math.pow(t, i) * Math.pow(1 - t, n - i);
-    x += points[i][0] * coefficient;
-    y += points[i][1] * coefficient;
-  }
-
-  return { x, y };
-}
-
-// Function to plot the Bezier curve on a grid
-function paintBezierCurve(points, resolution) {
-  const resolution1 = resolution * points.length;
-  const step = 1 / resolution;
-  const visited = new Set();
-
-  for (let t = step; t <= 1; t += step) {
-    const rect = canvas.getBoundingClientRect();
-
-    const { x, y } = calculateBezierPoint(t, points);
-    //paintPixelCoords(x, y);
-
-    const offsetX = x - rect.left - canvas.width / 2;
-    const offsetY = rect.top + canvas.height / 2 - y;
-    const x1 = Math.floor(offsetX / pixelSize);
-    const y1 = Math.floor(offsetY / pixelSize);
-
-    let gridX = Math.floor(width / 2) + x1;
-    let gridY = Math.floor(height / 2) - y1;
-    gridX = Math.floor(x);
-    gridY = Math.floor(y);
-    //console.log(gridX);
-    //console.log(gridY);
-    const key = `${gridX},${gridY}`;
-    if (!visited.has(key)) {
-      paintPixelCoords(gridX, gridY);
-      visited.add(key);
-    }
-  }
-}
-
-// const points = [
-//   [50, 100],
-//   [200, 50],
-//   [300, 150],
-//   [450, 100]
-// ];
-
-//const resolution = 100; // Increase the resolution for smoother curves
-
-//paintBezierCurve([[50, 100],[200, 50],[300, 150],[450, 100]], 100);
 
 function handleMode(x, y) {
   if (mode === "paint") {
