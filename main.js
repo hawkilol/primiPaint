@@ -636,14 +636,15 @@ function rotatePolygon(polygon, angle, pivotX, pivotY) {
     vertex[0] = rotatedX + pivotX;
     vertex[1] = rotatedY + pivotY;
     modifiedPolygon.push(vertex);
-
   }
+
   polyLine(modifiedPolygon);
   return modifiedPolygon
 }
 
 //Scaling
 function scalePolygon(polygon, scaleX, scaleY, fixedX, fixedY) {
+  const modifiedPolygon = [];
   // Iterate over each vertex of the polygon
   for (let i = 0; i < polygon.length; i++) {
     const vertex = polygon[i];
@@ -662,7 +663,11 @@ function scalePolygon(polygon, scaleX, scaleY, fixedX, fixedY) {
     // Translate the scaled vertex back to its original position
     vertex[0] = scaledX + fixedX;
     vertex[1] = scaledY + fixedY;
+    modifiedPolygon.push(vertex);
   }
+  
+  polyLine(modifiedPolygon);
+  return modifiedPolygon
 }
 
 //Broken!?
@@ -857,5 +862,6 @@ requestAnimationFrame(processPixelQueue);
 //polyLine([[15,5],[65,5],[65,55]]);
 //translatePolygon([[15,5],[65,5],[65,55]],5,5);
 //rotatePolygon([[15,5],[65,5],[65,55]],90,15,5);
+//scalePolygon([[15,5],[65,5],[65,55]],10,10,15,5);
 //paintBezierCurve([[50, 100],[200, 50],[300, 150],[450, 100]], 100);
 //paintBezierCurve([[10, 20],[40, 10],[60, 30],[90, 20]], 100);
