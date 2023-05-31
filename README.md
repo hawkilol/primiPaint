@@ -1,3 +1,1 @@
-# Primitivas computação grafica
-
-codepen: https://codepen.io/Abacatossaur/pen/BaqbNbX
+# paint2js
