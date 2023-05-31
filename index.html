@@ -1,38 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/src/style.css">
-    <title>Document</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>CodePen - paint2</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
     <h1>Paint2</h1>
 <p>Click and select a color to paint the canvas:</p>
-<form>
+<input type="color" id="color-picker" name="color-picker">
+    <label for="width">width:</label>
+    <input type="number" id="width" name="width" min="1" max="1000" value="1400">
+    <label for="height">height:</label>
+    <input type="number" id="height" name="height" min="1" max="1000" value="600">
+    <label for="pixelSize">PixelSize:</label>
+    <input type="number" id="pixelSize" name="pixelSize" min="1" max="100" value="1">
+<input type="button" onclick="getWHinputs()" value="Make Canvas">
+<div class="container">
+  <canvas id="canvas" width="1400" height="600"></canvas>
+  <form>
+    <input type="button" onclick="bresenhamMouse()" value="Line">
+    <input type="button" onclick="bresenhamMouse()" value="bresenhamLine">
+    <input type="button" onclick="circleMouse()" value="circle">
+    <input type="button" onclick="polyLineMouse()" value="polyLine">
+    <input type="button" onclick="polyLineEnd()" value="plotPolyLine">
+    <input type="button" onclick="fillMouse()" value="fill Recursive">
+    <input type="button" onclick="fill2Mouse()" value="fill Scan">
+    <input type="button" onclick="bezierCurveMouse()" value="bezierCurve">
+    <input type="button" onclick="endBezier()" value="plotBezier">
+    <div class="select">
+  <select id="select">
+    <option value="0">Paint Pixel</option>
+    <option value="1">Bresenham</option>
+    <option value="2">Circle</option>
+    <option value="3">Bezier Curve</option>
+    <option value="4">PolyLine</option>
+    <option value="5">Fill Bound Recursive </option>
+    <option value="6">Fill Flood Interative</option>
+    <option value="7">Fill Scan</option>
+    <option value="8">PolyLine</option>
+   
+  </select>
+      <br>
+      <input type="number" id="x1"  min="-1000" max="1000" value="1">
+      <br>
+    <input type="number" id="y1"  min="-1000" max="1000" value="1">
+      <br>
+      <input type="number" id="x2" min="-1000" max="1000" value="1">
+      <br>
+    <input type="number" id="y2" min="-1000" max="1000" value="1">
+      <br>
+      <input type="text" id="text" value="">
+      <br>
+      <input type="button" onclick="runSelected()" value="Run Selected">
+      
+      
+</div>
+  </form>
+</div>
 
-  <input type="color" id="color-picker" name="color-picker">
-
-  <br>
-  <label for="width">width:</label>
-
-  <input type="number" id="width" name="width" min="1" max="1000" value="700">
-
-  <br>
-  <label for="height">height:</label>
-  <input type="number" id="height" name="height" min="1" max="1000" value="300">
-
-  <br>
-
-  <label for="pixelSize">PixelSize:</label>
-  <input type="number" id="pixelSize" name="pixelSize" min="1" max="100" value="5">
-  <br>
-  <!--       <input type="submit" value="Make Canvas"> -->
-  <br>
-  <input type="button" onclick="getWHinputs()" value="Make Canvas">
-</form>
-<canvas id="canvas" width="700" height="300"></canvas>
-    <script src="/src/main.js"></script>
-</body>
+    <!-- partial -->
+    <script src="./main.js"></script>
+  </body>
 </html>
