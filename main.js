@@ -430,8 +430,6 @@ function paintBezierCurve(points, resolution) {
 
 //sweep flood fill
 function scanFill(startX, startY, replacementColor) {
-  //const canvasWidth = canvas.width;
-  //const canvasHeight = canvas.height;
   const targetColor = getRectColor(startX, startY);
   const queue = [{ x: startX, y: startY }];
   const min = Number.MIN_SAFE_INTEGER;
@@ -443,8 +441,6 @@ function scanFill(startX, startY, replacementColor) {
     const key = `${x},${y}`;
 
     if (!visited.has(key) && getRectColor(x, y) === targetColor) {
-      //console.log(x);
-      //console.log(y);
       paintPixelColor(x, y, replacementColor);
       visited.add(key);
 
@@ -460,8 +456,6 @@ function scanFill(startX, startY, replacementColor) {
   }
 }
 function scanFill1(startX, startY, replacementColor) {
-  const canvasWidth = canvas.width;
-  const canvasHeight = canvas.height;
   const targetColor = getRectColor(startX, startY);
   const stack = [[startX, startY]];
   const min = Number.MIN_SAFE_INTEGER;
@@ -567,6 +561,143 @@ function scanFill1(startX, startY, replacementColor) {
 //     }
 //   }
 // }
+function matrixMultiply(m1, m2) {
+  var result = [];
+  for (var i = 0; i < m1.length; i++) {
+      result[i] = [];
+      for (var j = 0; j < m2[0].length; j++) {
+          var sum = 0;
+          for (var k = 0; k < m1[0].length; k++) {
+              sum += m1[i][k] * m2[k][j];
+          }
+          result[i][j] = sum;
+      }
+  }
+  return result;
+}
+//Translation
+// THIS MODIFYS THE POLYGON TO THE POLYLINE FOR SOME REASON!!??! HOW?:
+// function translatePolygon(polygon, dx, dy) {
+//   // Iterate over each vertex of the polygon
+//   console.log(polygon);
+//   for (let i = 0; i < polygon.length; i++) {
+//     const vertex = polygon[i];
+
+//     // Translate the vertex by adding the displacement values
+//     vertex[0] += dx;
+//     vertex[1] += dy;
+//   }
+
+//   // Return the modified polygon array
+//   polyLine(polygon);
+//   return polygon;
+// }
+
+function translatePolygon(polygon, dx, dy) {
+  const modifiedPolygon = [];
+
+  // Iterate over each vertex of the polygon
+  for (let i = 0; i < polygon.length; i++) {
+    const vertex = polygon[i].slice(); // Create a copy of the vertex
+
+    // Translate the vertex by adding the displacement values
+    vertex[0] += dx;
+    vertex[1] += dy;
+
+    // Add the translated vertex to the modified polygon array
+    modifiedPolygon.push(vertex);
+  }
+  polyLine(modifiedPolygon);
+  return modifiedPolygon;
+}
+
+//Rotation
+function rotatePolygon(polygon, angle, pivotX, pivotY) {
+  const modifiedPolygon = [];
+  // Convert the angle to radians
+  const radians = (Math.PI / 180) * angle;
+
+  // Iterate over each vertex of the polygon
+  for (let i = 0; i < polygon.length; i++) {
+    const vertex = polygon[i];
+
+    const x = vertex[0];
+    const y = vertex[1];
+
+    // Translate the pivot point to the origin
+    const translatedX = x - pivotX;
+    const translatedY = y - pivotY;
+
+    // Apply the rotation formula
+    const rotatedX = translatedX * Math.cos(radians) - translatedY * Math.sin(radians);
+    const rotatedY = translatedX * Math.sin(radians) + translatedY * Math.cos(radians);
+
+    // Translate the rotated vertex back to its original position
+    vertex[0] = rotatedX + pivotX;
+    vertex[1] = rotatedY + pivotY;
+    modifiedPolygon.push(vertex);
+
+  }
+  polyLine(modifiedPolygon);
+  return modifiedPolygon
+}
+
+//Scaling
+function scalePolygon(polygon, scaleX, scaleY, fixedX, fixedY) {
+  // Iterate over each vertex of the polygon
+  for (let i = 0; i < polygon.length; i++) {
+    const vertex = polygon[i];
+
+    const x = vertex[0];
+    const y = vertex[1];
+
+    // Translate the fixed point to the origin
+    const translatedX = x - fixedX;
+    const translatedY = y - fixedY;
+
+    // Apply the scaling factors
+    const scaledX = translatedX * scaleX;
+    const scaledY = translatedY * scaleY;
+
+    // Translate the scaled vertex back to its original position
+    vertex[0] = scaledX + fixedX;
+    vertex[1] = scaledY + fixedY;
+  }
+}
+
+//Broken!?
+function translatePolygonMatrix(polygon, dx, dy) {
+  // Create the translation matrix
+  const translationMatrix = [
+    [1, 0, dx],
+    [0, 1, dy],
+    [0, 0, 1]
+  ];
+
+  // Create a new array to store the transformed polygon
+  const transformedPolygon = [];
+
+  // Iterate over each vertex of the polygon
+  for (let i = 0; i < polygon.length; i++) {
+    const vertex = polygon[i];
+    
+    // Convert the vertex to homogeneous coordinates [x, y, 1]
+    const homogeneousVertex = [vertex[0], vertex[1], 1];
+
+    // Apply the translation matrix to the vertex
+    
+    const translatedVertex = matrixMultiply(translationMatrix, homogeneousVertex);
+
+    // Add the transformed vertex to the new polygon array
+    console.log(translatedVertex);
+    transformedPolygon.push([translatedVertex[0], translatedVertex[1]]);
+  }
+
+  // Return the transformed polygon
+  console.log(transformedPolygon);
+  polyLine(transformedPolygon);
+  return transformedPolygon;
+}
 
 function handleMode(x, y) {
   if (mode === "paint") {
@@ -651,7 +782,7 @@ function polyLineMouse() {
 function polyLineEnd() {
   console.log("array");
   console.log(pointsArray);
-  polyLine(pointsArray, bezierResolution);
+  polyLine(pointsArray);
   mode = "paint";
   pointsArray = [];
 }
@@ -723,6 +854,8 @@ requestAnimationFrame(processPixelQueue);
 //floodFill(10,10,"rgb(200, 0, 0)", "rgb(0, 0, 0)"); <-- muito lento kkkk
 //stackFill(10,10,"rgb(200, 0, 0)", "rgb(0, 0, 0)");
 //floodFill2(10,10,"rgb(200, 0, 0)");
-//polyLine([[-30,-1],[-8,21],[13,-1]]);
+//polyLine([[15,5],[65,5],[65,55]]);
+//translatePolygon([[15,5],[65,5],[65,55]],5,5);
+//rotatePolygon([[15,5],[65,5],[65,55]],90,15,5);
 //paintBezierCurve([[50, 100],[200, 50],[300, 150],[450, 100]], 100);
 //paintBezierCurve([[10, 20],[40, 10],[60, 30],[90, 20]], 100);
