@@ -1,6 +1,8 @@
 //Make a valid coordinate check fucntion
 //Make temporary pixel to help ploting
 //bronca oracle
+//in.js:233 Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
+//g
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let width = 0;
@@ -63,12 +65,25 @@ function paintPixel(e) {
   const y = Math.floor(offsetY / pixelSize) + 1;
   handleMode(x, y);
 }
+function paintPixelInsta(x, y) {
+  const color = document.getElementById("color-picker").value;
+  const gridX = Math.floor(width / 2) + x;
+  const gridY = Math.floor(height / 2) - y;
+  if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
+    requestAnimationFrame (() => {
+      ctx.fillStyle = color;
+      ctx.fillRect(gridX * pixelSize, gridY * pixelSize, pixelSize, pixelSize);
+    })
+    
+  }
+}
 function paintPixelCoords(x, y) {
   const color = document.getElementById("color-picker").value;
   const gridX = Math.floor(width / 2) + x;
   const gridY = Math.floor(height / 2) - y;
   if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
     pixelQueue.push({ x: gridX, y: gridY, color: color }); // Add the pixel fill operation to the queue
+  
   }
 }
 function paintPixelColor(x, y, color) {
@@ -665,7 +680,7 @@ function scalePolygon(polygon, scaleX, scaleY, fixedX, fixedY) {
     vertex[1] = scaledY + fixedY;
     modifiedPolygon.push(vertex);
   }
-  
+
   polyLine(modifiedPolygon);
   return modifiedPolygon
 }
@@ -706,7 +721,7 @@ function translatePolygonMatrix(polygon, dx, dy) {
 
 function handleMode(x, y) {
   if (mode === "paint") {
-    paintPixelCoords(x, y);
+    paintPixelInsta(x, y);
   }
   if (mode === "line" || mode === "lineBegin") {
     if (mode === "line") {
