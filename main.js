@@ -4,7 +4,8 @@
 //in.js:233 Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
 //g
 const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d", { alpha: false });
+
 let width = 0;
 let height = 0;
 let pixelSize = 0;
@@ -15,7 +16,7 @@ let pointsArray = [];
 let bezierResolution = 100;
 let mode = "paint";
 let pixelQueue = []; // Queue to store the pixel fill operations
-
+// let coord = { x: 0, y: 0 };
 function getWHinputs() {
   width = Number(document.getElementById("width").value);
   height = Number(document.getElementById("height").value);
@@ -56,6 +57,10 @@ function startPainting(e) {
 function stopPainting() {
   isPainting = false;
 }
+// function reposition(event) {
+//   coord.x = event.clientX - canvas.offsetLeft;
+//   coord.y = event.clientY - canvas.offsetTop;
+// }
 function paintPixel(e) {
   if (!isPainting) return;
   const rect = canvas.getBoundingClientRect();
@@ -590,6 +595,57 @@ function matrixMultiply(m1, m2) {
   }
   return result;
 }
+function matrixMultiply2(m1, m2) {
+  var numRowsM1 = m1.length;
+  var numColsM1 = m1[0].length;
+  var numRowsM2 = m2.length;
+  var numColsM2 = m2[0].length;
+
+  // Adjust the dimensions of the matrices
+  if (numColsM1 !== numRowsM2) {
+    return null; // Matrices are incompatible for multiplication
+  }
+
+  var adjustedM1 = m1;
+  var adjustedM2 = m2;
+
+  if (numColsM1 < numColsM2) {
+    adjustedM1 = addColumns(m1, numColsM2 - numColsM1);
+  } else if (numColsM1 > numColsM2) {
+    adjustedM2 = addColumns(m2, numColsM1 - numColsM2);
+  }
+
+  // Perform matrix multiplication with adjusted matrices
+  var result = [];
+  for (var i = 0; i < adjustedM1.length; i++) {
+    result[i] = [];
+    for (var j = 0; j < adjustedM2[0].length; j++) {
+      var sum = 0;
+      for (var k = 0; k < adjustedM1[0].length; k++) {
+        sum += adjustedM1[i][k] * adjustedM2[k][j];
+      }
+      result[i][j] = sum;
+    }
+  }
+
+  return result;
+}
+
+// Helper function to add columns filled with zeroes to a matrix
+function addColumns(matrix, numCols) {
+  var newMatrix = [];
+  for (var i = 0; i < matrix.length; i++) {
+    newMatrix[i] = matrix[i].concat(Array(numCols).fill(1));
+  }
+  return newMatrix;
+}
+
+
+
+
+ 
+
+
 //Translation
 // THIS MODIFYS THE POLYGON TO THE POLYLINE FOR SOME REASON!!??! HOW?:
 // function translatePolygon(polygon, dx, dy) {
@@ -685,38 +741,155 @@ function scalePolygon(polygon, scaleX, scaleY, fixedX, fixedY) {
   return modifiedPolygon
 }
 
+function vertices3d2Matrix(vertices) {
+  const numRows = vertices.length;
+  const numCols = vertices[0].length;
+
+  // Create an empty matrix with the appropriate dimensions
+  const matrix = new Array(numRows);
+  for (let i = 0; i < numRows; i++) {
+    matrix[i] = new Array(numCols).fill(0);
+  }
+
+  // Copy the vertices into the matrix
+  for (let i = 0; i < numRows; i++) {
+    for (let j = 0; j < numCols; j++) {
+      matrix[j][i] = vertices[i][j];
+    }
+  }
+
+  return matrix;
+}
+function vertices2d2Matrix(vertices) {
+  const numRows = vertices.length;
+  const numCols = vertices[0].length;
+
+  // Create an empty matrix with the appropriate dimensions
+  const matrix = new Array(numRows);
+  for (let i = 0; i < numRows; i++) {
+    matrix[i] = new Array(numCols).fill(0);
+  }
+
+  // Copy the vertices into the matrix
+  for (let i = 0; i < numRows; i++) {
+    for (let j = 0; j < numCols; j++) {
+      matrix[j][i] = vertices[i][j];
+    }
+  }
+  for (let j = 0; j <= numCols; j++) {
+    console.log(numCols);
+    matrix[numRows - 1][j] = 1;
+  }
+
+  return matrix;
+}
 //Broken!?
 function translatePolygonMatrix(polygon, dx, dy) {
-  // Create the translation matrix
+  
+  const translationMatrix = [
+    [1, 0, dx],
+    [0, 1, dy],
+    [0, 0, 1]
+  ];
+  
+
+  // Create a new array to store the transformed polygon
+  const transformedPolygon = [];
+  const transformedPolygon2 = [];
+  // Iterate over each vertex of the polygon
+  for (let i = 0; i < polygon.length; i++) {
+    const vertex = polygon[i];
+    
+    // Convert the vertex to homogeneous coordinates [x, y, 1]
+    const homogeneousMatrix = [
+      [vertex[0]],
+      [vertex[1]],
+      [1]
+    ];
+
+    // Apply the translation matrix to the vertex
+    
+    const translatedVertex = matrixMultiply(translationMatrix, homogeneousMatrix);
+
+    // Add the transformed vertex to the new polygon array
+    console.log(translatedVertex);
+    transformedPolygon.push([translatedVertex[0], translatedVertex[1]]);
+    transformedPolygon2.push([translatedVertex[0][0], translatedVertex[1][0]]);
+  }
+
+  // Return the transformed polygon
+  console.log(transformedPolygon2);
+  
+  polyLine(transformedPolygon2);
+  return transformedPolygon;
+}
+
+function translatePolygonMatrix2(polygon, dx, dy) {
   const translationMatrix = [
     [1, 0, dx],
     [0, 1, dy],
     [0, 0, 1]
   ];
 
-  // Create a new array to store the transformed polygon
-  const transformedPolygon = [];
+  const homogeneousMatrix = vertices2d2Matrix(polygon);
+  console.log(homogeneousMatrix);
+  
+  const translatedMatrix = matrixMultiply2(translationMatrix, homogeneousMatrix);
 
-  // Iterate over each vertex of the polygon
-  for (let i = 0; i < polygon.length; i++) {
-    const vertex = polygon[i];
-    
-    // Convert the vertex to homogeneous coordinates [x, y, 1]
-    const homogeneousVertex = [vertex[0], vertex[1], 1];
+  console.log(translatedMatrix);
+  
+  //polyLine(translatedMatrix);
+  console.log("?");
+  rasterize3DMatrix(translatedMatrix);
+  return translatedMatrix;
+}
 
-    // Apply the translation matrix to the vertex
-    
-    const translatedVertex = matrixMultiply(translationMatrix, homogeneousVertex);
+function rasterize3DMatrix(matrix) {
+  console.log("call");
+  
+  const matrixWidth = matrix.length;
+  const matrixHeight = matrix[0].length;
+  const matrixDepth = matrix[0][0].length;
+  console.log(matrixWidth);
+  console.log(matrixHeight);
+  console.log(matrixDepth);
 
-    // Add the transformed vertex to the new polygon array
-    console.log(translatedVertex);
-    transformedPolygon.push([translatedVertex[0], translatedVertex[1]]);
+  // Scale the 3D matrix to fit the canvas
+  const scaleX = canvas.width / matrixWidth;
+  const scaleY = canvas.height / matrixHeight;
+  const scaleZ = Math.min(scaleX, scaleY); // Maintain aspect ratio
+
+  for (let z = 0; z < matrixDepth; z++) {
+    for (let y = 0; y < matrixHeight; y++) {
+      for (let x = 0; x < matrixWidth; x++) {
+        // Calculate the 2D coordinates
+        const xPos = x * scaleZ;
+        const yPos = y * scaleZ;
+
+          // If the matrix value is non-zero, draw lines between neighboring points
+          const nextX = (x + 1) * scaleZ;
+          const nextY = y * scaleZ;
+          const nextZ = z * scaleZ;
+
+          const nextXPos = nextX * scaleZ;
+          const nextYPos = nextY * scaleZ;
+          const nextZPos = nextZ * scaleZ;
+
+          // Draw lines using Bresenham's algorithm
+          console.log(xPos);
+          bresenham(xPos, yPos, nextXPos, nextYPos);
+          bresenham(xPos, yPos, xPos, nextZPos);
+          bresenham(nextXPos, yPos, nextXPos, nextZPos);
+          bresenham(xPos, nextYPos, nextXPos, nextYPos);
+          bresenham(xPos, nextYPos, xPos, nextZPos);
+          bresenham(nextXPos, nextYPos, nextXPos, nextZPos);
+
+          // Paint current point
+          paintPixelCoords(xPos, yPos);
+      
+      }
+    }
   }
-
-  // Return the transformed polygon
-  console.log(transformedPolygon);
-  polyLine(transformedPolygon);
-  return transformedPolygon;
 }
 
 function handleMode(x, y) {
@@ -866,6 +1039,9 @@ function runSelected() {
   }
 }
 requestAnimationFrame(processPixelQueue);
+
+
+// Example usage:
 //Examples:
 //paintPixelCoords(0,0);
 //bresenham(10,10,20,20);
@@ -876,7 +1052,44 @@ requestAnimationFrame(processPixelQueue);
 //floodFill2(10,10,"rgb(200, 0, 0)");
 //polyLine([[15,5],[65,5],[65,55]]);
 //translatePolygon([[15,5],[65,5],[65,55]],5,5);
+//translatePolygonMatrix([[15,5],[65,5],[65,55]],5,5);
 //rotatePolygon([[15,5],[65,5],[65,55]],90,15,5);
 //scalePolygon([[15,5],[65,5],[65,55]],10,10,15,5);
 //paintBezierCurve([[50, 100],[200, 50],[300, 150],[450, 100]], 100);
 //paintBezierCurve([[10, 20],[40, 10],[60, 30],[90, 20]], 100);
+
+// const canvas = document.getElementById("canvas");
+// const ctx = canvas.getContext("2d");
+// let coord = { x: 0, y: 0 };
+
+// document.addEventListener("mousedown", start);
+// document.addEventListener("mouseup", stop);
+// window.addEventListener("resize", resize);
+
+// resize();
+
+// function resize() {
+//   ctx.canvas.width = window.innerWidth;
+//   ctx.canvas.height = window.innerHeight;
+// }
+// function reposition(event) {
+//   coord.x = event.clientX - canvas.offsetLeft;
+//   coord.y = event.clientY - canvas.offsetTop;
+// }
+// function start(event) {
+//   document.addEventListener("mousemove", draw);
+//   reposition(event);
+// }
+// function stop() {
+//   document.removeEventListener("mousemove", draw);
+// }
+// function draw(event) {
+//   ctx.beginPath();
+//   ctx.lineWidth = 5;
+//   ctx.lineCap = "round";
+//   ctx.strokeStyle = "#ACD3ED";
+//   ctx.moveTo(coord.x, coord.y);
+//   reposition(event);
+//   ctx.lineTo(coord.x, coord.y);
+//   ctx.stroke();
+// }
