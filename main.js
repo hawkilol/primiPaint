@@ -920,26 +920,45 @@ function translatePolygonMatrix(polygon, dx, dy) {
   polyLine(transformedPolygon2);
   return transformedPolygon;
 }
-
-function translatePolygonMatrix2(polygon, dx, dy) {
+//Wrong
+function translatePolygonMatrix2(polygon, dx, dy, dz) {
   const translationMatrix = [
     [1, 0, dx],
     [0, 1, dy],
     [0, 0, 1]
   ];
 
-  const homogeneousMatrix = vertices2d2Matrix(polygon);
-  console.log(homogeneousMatrix);
+  ///const homogeneousMatrix = vertices2d2Matrix(polygon);
+  //console.log(homogeneousMatrix);
   
-  const translatedMatrix = matrixMultiply2(translationMatrix, homogeneousMatrix);
+  //const translatedMatrix = matrixXVector(translationMatrix, homogeneousMatrix);
+  
+  let traslatedVertices = [];
+ 
+  for (let i = 0; i < polygon[0].length; i++) {
 
-  console.log(translatedMatrix);
-  
-  //polyLine(translatedMatrix);
-  //rasterize3DMatrix(translatedMatrix);
-  rasterizePolygon(translatedMatrix);
-  return translatedMatrix;
+    let column = [];
+    for(var c=0; c < polygon.length; c++){
+      column.push(polygon[c][i]);
+    }
+    console.log("polyV");
+    console.log(column);
+    console.log("trans");
+    console.log(translationMatrix);
+    
+    //let traslatedVertice = matrixXVector(translationMatrix,column);
+    traslatedVertice = [column[0] + dx ,column[1] + dy, column[2] + dz];
+    console.log("transV");
+    console.log(traslatedVertice);
+    traslatedVertices.push(traslatedVertice);
+
+
+  }
+  console.log("tv");
+  console.log(traslatedVertices);
+  return transposeMatrix(traslatedVertices);
 }
+
 function rotatePolygonMatrixw(polygon, angle, pivotX, pivotY) {
   // Convert the angle to radians
   const radians = (Math.PI / 180) * angle;
@@ -1179,36 +1198,18 @@ function rasterizePolygon(vertices3D1) {
   const scaledPoly = scalePolygonMatrix(vertices3Dm8,10, 10, 0, 0);
   console.log("scaledx");
   console.log(scaledPoly);
+  let vertices3D2 = translatePolygonMatrix2(vertices3Daux,10,10,10);
+  vertices3D2 = rotateYPolygonMatrix(vertices3D2, 55, 0,0);
+  vertices3D2 = rotateXPolygonMatrix(vertices3D2, 55, 0,0);
+
   let vertices3D= rotateYPolygonMatrix(vertices3Daux, 55, 0,0);
   vertices3D = rotateXPolygonMatrix(vertices3D,50,0,0);
-  // Draw each edge using Bresenham's algorithm
-  const focalLength = 100; // Adjust the focal length according to your preference
-  // Perspective projection
-  const epsilon = 1e-6; // Adjust the epsilon value based on your requirements
 
-  // const vertices = vertices3D[0].map((_, index) => {
-  //   const z = vertices3D[2][index];
-
-  //   // Check if z is close to zero or zero itself
-  //   if (Math.abs(z) < epsilon) {
-  //     return {
-  //       x: 0, // Assign a default value or handle it appropriately
-  //       y: 0  // Assign a default value or handle it appropriately
-  //     };
-  //   }
-
-  //   // Perform perspective projection
-  //   return {
-  //     x: vertices3D[0][index] / z * focalLength,
-  //     y: vertices3D[1][index] / z * focalLength
-  //   };
-  // });
-  //const vertices = vertices3D.map(([x, y, _]) => [x, y]);
   console.log("test");
   console.log(vertices3Daux);
   vertices3Daux = vertices3D;
-  const vertices = vertices3Daux[0].map((_, i) => [vertices3Daux[0][i], vertices3Daux[1][i]]);
-
+  let vertices = vertices3Daux[0].map((_, i) => [vertices3Daux[0][i], vertices3Daux[1][i]]);
+  
   //const vertices = vertices3Daux.pop();
   //const vertices = vertices3Daux
   console.log("vertices");
@@ -1237,8 +1238,23 @@ function rasterizePolygon(vertices3D1) {
     // bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
 
   }
-  //paintPixelCoords(Math.round(v1[0]), Math.round(v1[1]));
-  //paintPixelCoords(Math.round(v2[0]), Math.round(v2[1]));
+  vertices = vertices3D2[0].map((_, i) => [vertices3D2[0][i], vertices3D2[1][i]]);
+  const lenHalf = vertices.length/2;
+  for (let i = 0; i < vertices.length/2; i++) {
+    color = colorList[i];
+    v1 = vertices[i];
+    v2 = vertices[(i + 1) % lenHalf];
+  
+
+    bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+    v1 = vertices[i + lenHalf];
+    v2 = vertices[((i + 1) % lenHalf) + lenHalf];
+    bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+    v1 = vertices[i];
+    v2 = vertices[i + lenHalf];
+    bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+  }
+
   
 
 }
