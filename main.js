@@ -660,17 +660,15 @@ function scalePolygon(polygon, scaleX, scaleY, fixedX, fixedY) {
   polyLine(modifiedPolygon);
   return modifiedPolygon
 }
-function scalePolygonMatrix(polygon, scaleX, scaleY, fixedX, fixedY) {
+function scalePolygonMatrix(polygon, scaleX, scaleY, scaleZ) {
   // Create the scaling matrix
   const scalingMatrix = [
-    [scaleX, 0, (1 - scaleX) * fixedX],
-    [0, scaleY, (1 - scaleY) * fixedY],
-    [0, 0, 1]
+    [scaleX, 0, 0],
+    [0, scaleY, 0],
+    [0, 0, scaleZ]
   ];
   let scaledVertices = [];
   // Iterate over each vertex of the polygon
-  console.log("len");
-  console.log(polygon.length);
   for (let i = 0; i < polygon[0].length; i++) {
     const vertex = polygon[i];
 
@@ -759,7 +757,7 @@ function translatePolygonMatrix2(polygon, dx, dy, dz) {
   const translationMatrix = [
     [1, 0, dx],
     [0, 1, dy],
-    [0, 0, 1]
+    [0, 0, dz]
   ];
 
   ///const homogeneousMatrix = vertices2d2Matrix(polygon);
@@ -954,10 +952,10 @@ function rasterizePolygon(vertices3Daux) {
    
     [2, 2, 2, 2, 0, 0, 0, 0]
   ]
-  const scaledPoly = scalePolygonMatrix(vertices3Dm8,10, 10, 0, 0);
-  let vertices3D2 = translatePolygonMatrix2(vertices3Daux,10,10,10);
-  vertices3D2 = rotateYPolygonMatrix(vertices3D2, 55, 1,1);
-  vertices3D2 = rotateXPolygonMatrix(vertices3D2, 45, 1,1);
+  const scaledPoly = scalePolygonMatrix(vertices3Daux,2,2,2);
+  let vertices3D2 = translatePolygonMatrix2(scaledPoly,12,12,12);
+  vertices3D2 = rotateYPolygonMatrix(vertices3D2, 55, 0,0);
+  vertices3D2 = rotateXPolygonMatrix(vertices3D2, 50, 0,0);
 
   let vertices3D= rotateYPolygonMatrix(vertices3Daux, 55, 0,0);
   vertices3D = rotateXPolygonMatrix(vertices3D,50,0,0);
