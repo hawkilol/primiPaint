@@ -635,11 +635,56 @@ function matrixMultiply2(m1, m2) {
 function addColumns(matrix, numCols) {
   var newMatrix = [];
   for (var i = 0; i < matrix.length; i++) {
-    newMatrix[i] = matrix[i].concat(Array(numCols).fill(1));
+    //newMatrix[i] = matrix[i].concat(Array(numCols).fill(1));
   }
   return newMatrix;
 }
 
+function matrixMultiply2(matrix1, matrix2) {
+  const rows1 = matrix1.length;
+  const cols1 = matrix1[0].length;
+  const rows2 = matrix2.length;
+  const cols2 = matrix2[0].length;
+
+  if (cols1 !== rows2) {
+    throw new Error('Matrix dimensions are not compatible for multiplication');
+  }
+
+  const result = [];
+
+  for (let i = 0; i < rows1; i++) {
+    const row = [];
+
+    for (let j = 0; j < cols2; j++) {
+      let sum = 0;
+
+      for (let k = 0; k < cols1; k++) {
+        sum += matrix1[i][k] * matrix2[k][j];
+      }
+
+      row.push(sum);
+    }
+
+    result.push(row);
+  }
+
+  return result;
+}
+function matrixXVector(matrix, vector) {
+  if (matrix.length !== 3 || matrix[0].length !== 3 || vector.length !== 3) {
+    throw new Error('Invalid matrix or vector dimensions');
+  }
+
+  var result = [0, 0, 0];
+
+  for (var i = 0; i < 3; i++) {
+    for (var j = 0; j < 3; j++) {
+      result[i] += matrix[i][j] * vector[j];
+    }
+  }
+
+  return result;
+}
 
 
 
@@ -740,7 +785,39 @@ function scalePolygon(polygon, scaleX, scaleY, fixedX, fixedY) {
   polyLine(modifiedPolygon);
   return modifiedPolygon
 }
+function scalePolygonMatrix(polygon, scaleX, scaleY, fixedX, fixedY) {
+  // Create the scaling matrix
+  const scalingMatrix = [
+    [scaleX, 0, (1 - scaleX) * fixedX],
+    [0, scaleY, (1 - scaleY) * fixedY],
+    [0, 0, 1]
+  ];
+  let scaledVertices = [];
+  // Iterate over each vertex of the polygon
+  console.log("len");
+  console.log(polygon.length);
+  for (let i = 0; i < polygon[0].length; i++) {
+    const vertex = polygon[i];
 
+    let column = [];
+    for(var c=0; c < polygon.length; c++){
+      column.push(polygon[c][i]);
+    }
+    console.log("polyS");
+    console.log(column);
+    console.log("Sca");
+    console.log(scalingMatrix);
+    // Apply the scaling matrix to the vertex vector
+    const scaledVertex = matrixXVector(scalingMatrix,column);
+    console.log("scaledVertex");
+    console.log(scaledVertex);
+    scaledVertices.push(scaledVertex);
+  }
+  const scaledMatrix = transposeMatrix(scaledVertices);
+  console.log("ts");
+  console.log(scaledVertices);
+  return scaledMatrix
+}
 function vertices3d2Matrix(vertices) {
   const numRows = vertices.length;
   const numCols = vertices[0].length;
@@ -783,6 +860,26 @@ function vertices2d2Matrix(vertices) {
 
   return matrix;
 }
+function transposeMatrix(matrix) {
+  if (matrix.length === 0 || matrix[0].length === 0) {
+    return [];
+  }
+
+  const numRows = matrix.length;
+  const numCols = matrix[0].length;
+
+  const transposedMatrix = [];
+
+  for (let j = 0; j < numCols; j++) {
+    transposedMatrix[j] = [];
+    for (let i = 0; i < numRows; i++) {
+      transposedMatrix[j][i] = matrix[i][j];
+    }
+  }
+
+  return transposedMatrix;
+}
+
 //Broken!?
 function translatePolygonMatrix(polygon, dx, dy) {
   
@@ -839,9 +936,122 @@ function translatePolygonMatrix2(polygon, dx, dy) {
   console.log(translatedMatrix);
   
   //polyLine(translatedMatrix);
-  console.log("?");
-  rasterize3DMatrix(translatedMatrix);
+  //rasterize3DMatrix(translatedMatrix);
+  rasterizePolygon(translatedMatrix);
   return translatedMatrix;
+}
+function rotatePolygonMatrixw(polygon, angle, pivotX, pivotY) {
+  // Convert the angle to radians
+  const radians = (Math.PI / 180) * angle;
+
+  // Create the rotation matrix
+  const rotationMatrix = [
+    [Math.cos(radians), -Math.sin(radians), pivotX * (1 - Math.cos(radians)) + pivotY * Math.sin(radians)],
+    [Math.sin(radians), Math.cos(radians), pivotY * (1 - Math.cos(radians)) - pivotX * Math.sin(radians)],
+    [0, 0, 1]
+  ];
+
+  // Create a new array to store the transformed polygon
+  const transformedPolygon = [];
+
+  // Iterate over each vertex of the polygon
+  for (let i = 0; i < polygon.length; i++) {
+    const vertex = polygon[i];
+
+    // Convert the vertex to homogeneous coordinates [x, y, 1]
+    const homogeneousVertex = [vertex[0], vertex[1], 1];
+
+    // Apply the rotation matrix to the vertex
+    const rotatedVertex = matrixMultiply(rotationMatrix, homogeneousVertex);
+
+    // Add the transformed vertex to the new polygon array
+    transformedPolygon.push([rotatedVertex[0], rotatedVertex[1]]);
+  }
+
+  // Return the transformed polygon
+  return transformedPolygon;
+}
+function rotatePolygonMatrix1(polygon, angle, pivotX, pivotY) {
+  // Convert the angle to radians
+  const radians = (Math.PI / 180) * angle;
+
+  // Create the rotation matrix
+  const rotationMatrix = [
+    [Math.cos(radians), -Math.sin(radians), pivotX * (1 - Math.cos(radians)) + pivotY * Math.sin(radians)],
+    [Math.sin(radians), Math.cos(radians), pivotY * (1 - Math.cos(radians)) - pivotX * Math.sin(radians)],
+    [0, 0, 1]
+  ];
+
+  // Create a new array to store the transformed polygon
+  const transformedPolygon = [];
+
+  // Iterate over each vertex of the polygon
+  for (let i = 0; i < polygon.length; i++) {
+    const vertex = polygon[i];
+
+    // Convert the vertex to homogeneous coordinates [x, y, 1]
+    const homogeneousVertex = [vertex[0], vertex[1], 1];
+
+    // Apply the rotation matrix to the vertex
+    const rotatedVertex = matrixMultiply(rotationMatrix, homogeneousVertex);
+
+    // Add the transformed vertex to the new polygon array
+    transformedPolygon.push([rotatedVertex[0], rotatedVertex[1]]);
+  }
+
+  // Return the transformed polygon
+  return transformedPolygon;
+}
+function rotatePolygonMatrix(polygon, angle, pivotX, pivotY) {
+  // Convert the angle to radians
+  const radians = (Math.PI / 180) * angle;
+
+  // Create the rotation matrix
+  // const rotationMatrix = [
+  //   [Math.cos(radians), -Math.sin(radians), pivotX * (1 - Math.cos(radians)) + pivotY * Math.sin(radians)],
+  //   [Math.sin(radians), Math.cos(radians), pivotY * (1 - Math.cos(radians)) - pivotX * Math.sin(radians)],
+  //   [0, 0, 1]
+  // ];
+//   const rotationMatrixY = [
+//     [Math.cos(radians), 0, Math.sin(radians)],
+//     [0, 1, 0],
+//     [-Math.sin(radians), 0, Math.cos(radians)]
+// ];
+const rotationMatrix = [
+  [Math.cos(radians), 0, Math.sin(radians)],
+  [0, 1, 0],
+  [-Math.sin(radians), 0, Math.cos(radians)]
+];
+  let rotatedVertices = [];
+  
+ 
+  
+  for (let i = 0; i < polygon[0].length; i++) {
+
+    let column = [];
+    for(var c=0; c < polygon.length; c++){
+      column.push(polygon[c][i]);
+    }
+  
+    console.log("polyC");
+    console.log(column);
+    console.log("rot");
+    console.log(rotationMatrix);
+
+    let rotatedVertice = matrixXVector(rotationMatrix,column);
+    rotatedVertices.push(rotatedVertice);
+    
+    console.log("rotated");
+    console.log(rotatedVertice);
+    
+  }
+  const rotatedMatrix = transposeMatrix(rotatedVertices);
+  console.log("rotatedMatrix");
+  console.log(rotatedMatrix);
+  //polyLine(translatedMatrix);
+  //rasterize3DMatrix(rotatedMatrix);
+  //rasterizePolygon(rotatedMatrix);
+  return rotatedMatrix;
 }
 
 function rasterize3DMatrix(matrix) {
@@ -892,6 +1102,99 @@ function rasterize3DMatrix(matrix) {
   }
 }
 
+function rasterizePolygon(vertices3D1) {
+  console.log("raster");
+  let vertices3Daux= [
+    
+    [0, 10, 10, 0, 0, 10, 10, 0],
+   
+    [0, 0, 10, 10, 0, 0, 10, 10],
+   
+    [0, 0, 0, 0, 10, 10, 10, 10]
+  ]
+  const vertices3Dm8 = [
+    
+    [0, 2, 2, 0, 0, 2, 2, 0],
+   
+    [0, 0, 2, 2, 0, 0, 2, 2],
+   
+    [2, 2, 2, 2, 0, 0, 0, 0]
+  ]
+  const scaledPoly = scalePolygonMatrix(vertices3Dm8,10, 10, 0, 0);
+  console.log("scaledx");
+  console.log(scaledPoly);
+  const vertices3D= rotatePolygonMatrix(vertices3Daux, 90, 0,0);
+  // Draw each edge using Bresenham's algorithm
+  const focalLength = 100; // Adjust the focal length according to your preference
+  // Perspective projection
+  const epsilon = 1e-6; // Adjust the epsilon value based on your requirements
+
+  // const vertices = vertices3D[0].map((_, index) => {
+  //   const z = vertices3D[2][index];
+
+  //   // Check if z is close to zero or zero itself
+  //   if (Math.abs(z) < epsilon) {
+  //     return {
+  //       x: 0, // Assign a default value or handle it appropriately
+  //       y: 0  // Assign a default value or handle it appropriately
+  //     };
+  //   }
+
+  //   // Perform perspective projection
+  //   return {
+  //     x: vertices3D[0][index] / z * focalLength,
+  //     y: vertices3D[1][index] / z * focalLength
+  //   };
+  // });
+  //const vertices = vertices3D.map(([x, y, _]) => [x, y]);
+  console.log("test");
+  console.log(vertices3Daux);
+  vertices3Daux = vertices3D;
+  const vertices = vertices3Daux[0].map((_, i) => [vertices3Daux[0][i], vertices3Daux[1][i]]);
+
+  //const vertices = vertices3Daux.pop();
+  //const vertices = vertices3Daux
+  console.log("vertices");
+  console.log(vertices);
+  //polyLine(vertices);
+  for (let i = 0; i < vertices.length; i++) {
+    const v1 = vertices[i];
+    const v2 = vertices[(i + 1) % vertices.length];
+
+    paintPixelCoords(Math.round(v1[0]), Math.round(v1[1]));
+    paintPixelCoords(Math.round(v2[0]), Math.round(v2[1]));
+      //bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+   
+  }
+  
+        //bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+
+}
+function rotatePolygonMatrix3d(polygon, angle, pivotX, pivotY) {
+  // Convert the angle to radians
+  const radians = (Math.PI / 180) * angle;
+
+  // Create the rotation matrix
+  const rotationMatrix = [
+    [Math.cos(radians), 0, Math.sin(radians)],
+    [0, 1, 0],
+    [-Math.sin(radians), 0, Math.cos(radians)]
+  ];
+
+  const rotatedVertices = [];
+
+  for (let i = 0; i < polygon.length; i++) {
+    const vertex = polygon[i];
+    const translatedX = vertex[0] - pivotX;
+    const translatedY = vertex[1] - pivotY;
+    const rotatedX = rotationMatrix[0][0] * translatedX + rotationMatrix[0][2] * translatedY + pivotX;
+    const rotatedY = vertex[1];
+    const rotatedZ = rotationMatrix[2][0] * translatedX + rotationMatrix[2][2] * translatedY + pivotY;
+    rotatedVertices.push([rotatedX, rotatedY, rotatedZ]);
+  }
+
+  return rotatedVertices;
+}
 function handleMode(x, y) {
   if (mode === "paint") {
     paintPixelInsta(x, y);
