@@ -43,17 +43,26 @@
   </select>
       <br>
       <input type="number" id="x1"  min="-1000" max="1000" value="1">
+      X1
       <br>
     <input type="number" id="y1"  min="-1000" max="1000" value="1">
+      Y1
       <br>
       <input type="number" id="x2" min="-1000" max="1000" value="1">
+      X2 / R
       <br>
     <input type="number" id="y2" min="-1000" max="1000" value="1">
+      Y2
       <br>
       <input type="text" id="text" value="">
       <br>
       <input type="button" onclick="runSelected()" value="Run Selected">
-      
+      <br>
+      <input type="text" size="80" id="arrayInput" placeholder="Enter 3D array as a string" />
+      <input type="text" size="80" id="edgesInput" placeholder="Enter enter the edges" />
+
+      <input type="button" onclick="convertToArray()" value="Input Array"></input>
+
       
 </div>
   </form>

@@ -941,7 +941,7 @@ function rasterize3DMatrix(matrix) {
   }
 }
 
-function rasterizePolygon(vertices3Daux) {
+function rasterizePolygon(vertices3Daux, edges) {
   console.log("raster");
 
   const vertices3Dm8 = [
@@ -970,11 +970,11 @@ function rasterizePolygon(vertices3Daux) {
   let v1 = [];
   let v2 = [];
   //Talvez organizar a matrix orignal dessa forma: 
-  let edges = [
-    [0, 1], [1, 2], [2, 3], [3, 0], // Front face
-    [4, 5], [5, 6], [6, 7], [7, 4], // Back face
-    [0, 4], [1, 5], [2, 6], [3, 7]  // Connect corresponding vertices between front and back faces
-  ];
+  // let edges = [
+  //   [0, 1], [1, 2], [2, 3], [3, 0], // Front face
+  //   [4, 5], [5, 6], [6, 7], [7, 4], // Back face
+  //   [0, 4], [1, 5], [2, 6], [3, 7]  // Connect corresponding vertices between front and back faces
+  // ];
   
   const colorList = ["#8eea6d", "#4e71fb", "#3772aa", "#ee22a2", "#018453", "#123992", "#3048de", "#8b8cc0"]
   for (let i = 0; i < edges.length; i++) {
@@ -1031,6 +1031,22 @@ function rotatePolygonMatrix3d(polygon, angle, pivotX, pivotY) {
 
   return rotatedVertices;
 }
+function convertToArray() {
+  // Get the input value
+  var input = document.getElementById('arrayInput').value;
+  var edgesInput = document.getElementById('edgesInput').value;
+  try {
+    // Parse the input string into a 3D array
+    var array = JSON.parse(input);
+    var edges = JSON.parse(edgesInput);
+    console.log('Converted 3D array:', array);
+    console.log('Converted Edges:', edges);
+    rasterizePolygon(array,edges);
+  } catch (error) {
+    console.log('Error parsing input:', error);
+  }
+}
+
 function handleMode(x, y) {
   if (mode === "paint") {
     paintPixelInsta(x, y);
@@ -1205,6 +1221,12 @@ requestAnimationFrame(processPixelQueue);
  
 //   [0, 0, 0, 0, 10, 10, 10, 10]
 // ];
+// let edges = [
+//     [0, 1], [1, 2], [2, 3], [3, 0],
+//     [4, 5], [5, 6], [6, 7], [7, 4], 
+//     [0, 4], [1, 5], [2, 6], [3, 7]  
+//   ];
+  
 //rasterizePolygon(vertices3Daux);
 // const canvas = document.getElementById("canvas");
 // const ctx = canvas.getContext("2d");
