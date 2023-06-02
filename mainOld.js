@@ -84,7 +84,7 @@ function paintPixelInsta(x, y) {
   }
 }
 function paintPixelCoords(x, y) {
-  //color = document.getElementById("color-picker").value;
+  color = document.getElementById("color-picker").value;
   const gridX = Math.floor(width / 2) + x;
   const gridY = Math.floor(height / 2) - y;
   if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
@@ -476,7 +476,112 @@ function scanFill(startX, startY, replacementColor) {
     }
   }
 }
+function scanFill1(startX, startY, replacementColor) {
+  const targetColor = getRectColor(startX, startY);
+  const stack = [[startX, startY]];
+  const min = Number.MIN_SAFE_INTEGER;
+  const max = Number.MAX_SAFE_INTEGER;
+  while (stack.length > 0) {
+    let [x, y] = stack.pop();
 
+    while (x >= min && getRectColor(x, y) === targetColor) {
+      x--;
+    }
+
+    x++;
+
+    let leftPixelFound = false;
+    let rightPixelFound = false;
+
+    while (x < max && getRectColor(x, y) === targetColor) {
+      paintPixelCoords(x, y);
+
+      if (
+        !leftPixelFound &&
+        y > min &&
+        getRectColor(x, y - 1) === targetColor
+      ) {
+        stack.push([x, y - 1]);
+        leftPixelFound = true;
+      } else if (
+        leftPixelFound &&
+        y > min &&
+        getRectColor(x, y - 1) !== targetColor
+      ) {
+        leftPixelFound = false;
+      }
+
+      if (
+        !rightPixelFound &&
+        y < max &&
+        getRectColor(x, y + 1) === targetColor
+      ) {
+        stack.push([x, y + 1]);
+        rightPixelFound = true;
+      } else if (
+        rightPixelFound &&
+        y < max &&
+        getRectColor(x, y + 1) !== targetColor
+      ) {
+        rightPixelFound = false;
+      }
+
+      x++;
+    }
+  }
+}
+
+// haduken fill!
+// function scanFill(x, y, color) {
+//   const canvasWidth = canvas.width;
+//   const canvasHeight = canvas.height;
+//   const stack = [];
+//   stack.push({ x, y });
+
+//   const startColor = getRectColor(x, y);
+//   if (startColor === color) {
+//     return;
+//   }
+
+//   while (stack.length > 0) {
+//     const { x, y } = stack.pop();
+//     let currentX = x;
+//     let currentY = y;
+
+//     // Find the leftmost boundary of the region to fill
+//     while (currentX >= 0 && getRectColor(currentX, currentY) === startColor) {
+//       currentX--;
+//     }
+//     currentX++;
+
+//     let spanAbove = false;
+//     let spanBelow = false;
+
+//     // Fill the scanline and check for spans above and below
+//     while (currentX < canvasWidth && getRectColor(currentX, currentY) === startColor) {
+//       paintPixelColor(currentX, currentY, color);
+
+//       // Check above the current scanline
+//       if (!spanAbove && currentY > 0 && getRectColor(currentX, currentY - 1) === startColor) {
+//         stack.push({ x: currentX, y: currentY - 1 });
+//         spanAbove = true;
+//       } else if (spanAbove && currentY > 0 && getRectColor(currentX, currentY - 1) !== startColor) {
+//         spanAbove = false;
+//       }
+
+//       // Check below the current scanline
+//       if (!spanBelow && currentY < canvasHeight - 1 && getRectColor(currentX, currentY + 1) === startColor) {
+//         stack.push({ x: currentX, y: currentY + 1 });
+//         spanBelow = true;
+//       } else if (spanBelow && currentY < canvasHeight - 1 && getRectColor(currentX, currentY + 1) !== startColor) {
+//         spanBelow = false;
+//       }
+
+//       // Move to the next pixel on the scanline
+//       currentX++;
+//     }
+//   }
+// }
 function matrixMultiply(m1, m2) {
   var result = [];
   for (var i = 0; i < m1.length; i++) {
@@ -491,7 +596,7 @@ function matrixMultiply(m1, m2) {
   }
   return result;
 }
-function matrixMultiply1(m1, m2) {
+function matrixMultiply2(m1, m2) {
   var numRowsM1 = m1.length;
   var numColsM1 = m1[0].length;
   var numRowsM2 = m2.length;
@@ -531,7 +636,7 @@ function matrixMultiply1(m1, m2) {
 function addColumns(matrix, numCols) {
   var newMatrix = [];
   for (var i = 0; i < matrix.length; i++) {
-    newMatrix[i] = matrix[i].concat(Array(numCols).fill(0));
+    //newMatrix[i] = matrix[i].concat(Array(numCols).fill(1));
   }
   return newMatrix;
 }
@@ -582,7 +687,28 @@ function matrixXVector(matrix, vector) {
   return result;
 }
 
+
+
+ 
+
+
 //Translation
+// THIS MODIFYS THE POLYGON TO THE POLYLINE FOR SOME REASON!!??! HOW?:
+// function translatePolygon(polygon, dx, dy) {
+//   // Iterate over each vertex of the polygon
+//   console.log(polygon);
+//   for (let i = 0; i < polygon.length; i++) {
+//     const vertex = polygon[i];
+
+//     // Translate the vertex by adding the displacement values
+//     vertex[0] += dx;
+//     vertex[1] += dy;
+//   }
+
+//   // Return the modified polygon array
+//   polyLine(polygon);
+//   return polygon;
+// }
 
 function translatePolygon(polygon, dx, dy) {
   const modifiedPolygon = [];
@@ -693,7 +819,48 @@ function scalePolygonMatrix(polygon, scaleX, scaleY, fixedX, fixedY) {
   console.log(scaledVertices);
   return scaledMatrix
 }
+function vertices3d2Matrix(vertices) {
+  const numRows = vertices.length;
+  const numCols = vertices[0].length;
 
+  // Create an empty matrix with the appropriate dimensions
+  const matrix = new Array(numRows);
+  for (let i = 0; i < numRows; i++) {
+    matrix[i] = new Array(numCols).fill(0);
+  }
+
+  // Copy the vertices into the matrix
+  for (let i = 0; i < numRows; i++) {
+    for (let j = 0; j < numCols; j++) {
+      matrix[j][i] = vertices[i][j];
+    }
+  }
+
+  return matrix;
+}
+function vertices2d2Matrix(vertices) {
+  const numRows = vertices.length;
+  const numCols = vertices[0].length;
+
+  // Create an empty matrix with the appropriate dimensions
+  const matrix = new Array(numRows);
+  for (let i = 0; i < numRows; i++) {
+    matrix[i] = new Array(numCols).fill(0);
+  }
+
+  // Copy the vertices into the matrix
+  for (let i = 0; i < numRows; i++) {
+    for (let j = 0; j < numCols; j++) {
+      matrix[j][i] = vertices[i][j];
+    }
+  }
+  for (let j = 0; j <= numCols; j++) {
+    console.log(numCols);
+    matrix[numRows - 1][j] = 1;
+  }
+
+  return matrix;
+}
 function transposeMatrix(matrix) {
   if (matrix.length === 0 || matrix[0].length === 0) {
     return [];
@@ -793,27 +960,38 @@ function translatePolygonMatrix2(polygon, dx, dy, dz) {
   return transposeMatrix(traslatedVertices);
 }
 
-function rotatePoly(polygon, rotationMatrix, angle, pivotX, pivotY){
+
+function rotateYPolygonMatrix(polygon, angle, pivotX, pivotY) {
+  // Convert the angle to radians
+  const radians = (Math.PI / 180) * angle;
+
+const rotationMatrix = [
+  [Math.cos(radians), 0, Math.sin(radians)],
+  [0, 1, 0],
+  [-Math.sin(radians), 0, Math.cos(radians)]
+];
   let rotatedVertices = [];
+  
+ 
+  
   for (let i = 0; i < polygon[0].length; i++) {
 
     let column = [];
     for(var c=0; c < polygon.length; c++){
       column.push(polygon[c][i]);
     }
-
-    column[0] =  column[0] - pivotX;
-    column[2] = column[2] - pivotY;
-    // Apply rotation
+  
+    console.log("polyC");
+    console.log(column);
+    console.log("rot");
+    console.log(rotationMatrix);
 
     let rotatedVertice = matrixXVector(rotationMatrix,column);
-
-    // Translate back from pivot point
-    rotatedVertice[0] = rotatedVertice[0] + pivotX;
-    rotatedVertice[2] = rotatedVertice[2] + pivotY;
-
-    //let rotatedVertice = matrixXVector(rotationMatrix,column);
     rotatedVertices.push(rotatedVertice);
+    
+    console.log("rotated");
+    console.log(rotatedVertice);
+    
   }
   const rotatedMatrix = transposeMatrix(rotatedVertices);
   console.log("rotatedMatrix");
@@ -824,75 +1002,81 @@ function rotatePoly(polygon, rotationMatrix, angle, pivotX, pivotY){
   return rotatedMatrix;
 }
 
-function rotateYPolygonMatrix(polygon, angle, pivotX, pivotY) {
-  // Convert the angle to radians
-  const radians = (Math.PI / 180) * angle;
-
-  // const rotationMatrix = [
-  //   [Math.cos(radians), 0, Math.sin(radians)],
-  //   [0, 1, 0],
-  //   [-Math.sin(radians), 0, Math.cos(radians)]
-  // ];
-  const cosTheta = Math.cos(radians);
-  const sinTheta = Math.sin(radians);
-
-  const rotationMatrix = [
-    [cosTheta, 0, sinTheta],
-    [0, 1, 0],
-    [-sinTheta, 0, cosTheta]
-  ];
-
-  //rotationMatrix[0][2] = pivotX * (1 - cosTheta) - pivotY * sinTheta;
-  //rotationMatrix[2][2] = pivotY * (1 - cosTheta) + pivotX * sinTheta;
-
-  return rotatePoly(polygon, rotationMatrix, angle, pivotX, pivotY);
-}
-
-
-
 function rotateXPolygonMatrix(polygon, angle, pivotX, pivotY) {
   // Convert the angle to radians
   const radians = (Math.PI / 180) * angle;
 
-  // const rotationMatrix = [
-  // [1, 0, 0],
-  // [0, Math.cos(radians), -Math.sin(radians)],
-  // [0, Math.sin(radians), Math.cos(radians)]
-  // ];
-
-  // Calculate the sine and cosine of the angle
-  const cosTheta = Math.cos(radians);
-  const sinTheta = Math.sin(radians);
-
-
   const rotationMatrix = [
-    [1, 0, 0],
-    [0, cosTheta, -sinTheta],
-    [0, sinTheta, cosTheta]
+  [1, 0, 0],
+  [0, Math.cos(radians), -Math.sin(radians)],
+  [0, Math.sin(radians), Math.cos(radians)]
   ];
+  let rotatedVertices = [];
+  for (let i = 0; i < polygon[0].length; i++) {
 
-  //rotationMatrix[0][2] = pivotX * (1 - cosTheta) - pivotY * sinTheta;
-  //rotationMatrix[1][2] = pivotY * (1 - cosTheta) + pivotX * sinTheta;
-  return rotatePoly(polygon, rotationMatrix, angle, pivotX, pivotY);
+    let column = [];
+    for(var c=0; c < polygon.length; c++){
+      column.push(polygon[c][i]);
+    }
+  
+    console.log("polyC");
+    console.log(column);
+    console.log("rot");
+    console.log(rotationMatrix);
 
+    let rotatedVertice = matrixXVector(rotationMatrix,column);
+    rotatedVertices.push(rotatedVertice);
+    
+    console.log("rotated");
+    console.log(rotatedVertice);
+    
+  }
+  const rotatedMatrix = transposeMatrix(rotatedVertices);
+  console.log("rotatedMatrix");
+  console.log(rotatedMatrix);
+  //polyLine(translatedMatrix);
+  //rasterize3DMatrix(rotatedMatrix);
+  //rasterizePolygon(rotatedMatrix);
+  return rotatedMatrix;
 }
 function rotateZPolygonMatrix(polygon, angle, pivotX, pivotY) {
   // Convert the angle to radians
   const radians = (Math.PI / 180) * angle;
   const cosTheta = Math.cos(radians);
   const sinTheta = Math.sin(radians);
-  // const rotationMatrix = [
-  //   [cosTheta, -sinTheta, 0, 0],
-  //   [sinTheta, cosTheta, 0, 0],
-  //   [0, 0, 1, 0],
-  //   [0, 0, 0, 1]];
   const rotationMatrix = [
-    [cosTheta, -sinTheta, pivotX * (1 - cosTheta) + pivotY * sinTheta],
-    [sinTheta, cosTheta, pivotY * (1 - cosTheta) - pivotX * sinTheta],
-    [0, 0, 1]
-  ];
-  return rotatePoly(polygon, rotationMatrix, angle, pivotX, pivotY);
+    [cosTheta, -sinTheta, 0, 0],
+    [sinTheta, cosTheta, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 1]];
 
+  let rotatedVertices = [];
+  for (let i = 0; i < polygon[0].length; i++) {
+
+    let column = [];
+    for(var c=0; c < polygon.length; c++){
+      column.push(polygon[c][i]);
+    }
+  
+    console.log("polyC");
+    console.log(column);
+    console.log("rot");
+    console.log(rotationMatrix);
+
+    let rotatedVertice = matrixXVector(rotationMatrix,column);
+    rotatedVertices.push(rotatedVertice);
+    
+    console.log("rotated");
+    console.log(rotatedVertice);
+    
+  }
+  const rotatedMatrix = transposeMatrix(rotatedVertices);
+  console.log("rotatedMatrix");
+  console.log(rotatedMatrix);
+  //polyLine(translatedMatrix);
+  //rasterize3DMatrix(rotatedMatrix);
+  //rasterizePolygon(rotatedMatrix);
+  return rotatedMatrix;
 }
 
 function rasterize3DMatrix(matrix) {
@@ -956,8 +1140,8 @@ function rasterizePolygon(vertices3Daux) {
   ]
   const scaledPoly = scalePolygonMatrix(vertices3Dm8,10, 10, 0, 0);
   let vertices3D2 = translatePolygonMatrix2(vertices3Daux,10,10,10);
-  vertices3D2 = rotateYPolygonMatrix(vertices3D2, 55, 1,1);
-  vertices3D2 = rotateXPolygonMatrix(vertices3D2, 45, 1,1);
+  vertices3D2 = rotateYPolygonMatrix(vertices3D2, 55, 0,0);
+  vertices3D2 = rotateXPolygonMatrix(vertices3D2, 55, 0,0);
 
   let vertices3D= rotateYPolygonMatrix(vertices3Daux, 55, 0,0);
   vertices3D = rotateXPolygonMatrix(vertices3D,50,0,0);
