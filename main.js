@@ -5,6 +5,7 @@
 //g
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d", { alpha: false });
+let color = document.getElementById("color-picker").value;
 
 let width = 0;
 let height = 0;
@@ -83,7 +84,6 @@ function paintPixelInsta(x, y) {
   }
 }
 function paintPixelCoords(x, y) {
-  const color = document.getElementById("color-picker").value;
   const gridX = Math.floor(width / 2) + x;
   const gridY = Math.floor(height / 2) - y;
   if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
@@ -1002,7 +1002,7 @@ function rotatePolygonMatrix1(polygon, angle, pivotX, pivotY) {
   // Return the transformed polygon
   return transformedPolygon;
 }
-function rotatePolygonMatrix(polygon, angle, pivotX, pivotY) {
+function rotateYPolygonMatrix(polygon, angle, pivotX, pivotY) {
   // Convert the angle to radians
   const radians = (Math.PI / 180) * angle;
 
@@ -1026,6 +1026,44 @@ const rotationMatrix = [
   
  
   
+  for (let i = 0; i < polygon[0].length; i++) {
+
+    let column = [];
+    for(var c=0; c < polygon.length; c++){
+      column.push(polygon[c][i]);
+    }
+  
+    console.log("polyC");
+    console.log(column);
+    console.log("rot");
+    console.log(rotationMatrix);
+
+    let rotatedVertice = matrixXVector(rotationMatrix,column);
+    rotatedVertices.push(rotatedVertice);
+    
+    console.log("rotated");
+    console.log(rotatedVertice);
+    
+  }
+  const rotatedMatrix = transposeMatrix(rotatedVertices);
+  console.log("rotatedMatrix");
+  console.log(rotatedMatrix);
+  //polyLine(translatedMatrix);
+  //rasterize3DMatrix(rotatedMatrix);
+  //rasterizePolygon(rotatedMatrix);
+  return rotatedMatrix;
+}
+
+function rotateXPolygonMatrix(polygon, angle, pivotX, pivotY) {
+  // Convert the angle to radians
+  const radians = (Math.PI / 180) * angle;
+
+  const rotationMatrix = [
+  [1, 0, 0],
+  [0, Math.cos(radians), -Math.sin(radians)],
+  [0, Math.sin(radians), Math.cos(radians)]
+  ];
+  let rotatedVertices = [];
   for (let i = 0; i < polygon[0].length; i++) {
 
     let column = [];
@@ -1104,6 +1142,14 @@ function rasterize3DMatrix(matrix) {
 
 function rasterizePolygon(vertices3D1) {
   console.log("raster");
+  // let vertices3Daux= [
+    
+  //   [0, 10, 10, 0, 0, 10, 10, 0],
+   
+  //   [0, 0, 10, 10, 0, 0, 10, 10],
+   
+  //   [0, 0, 0, 0, 10, 10, 10, 10]
+  // ]
   let vertices3Daux= [
     
     [0, 10, 10, 0, 0, 10, 10, 0],
@@ -1112,6 +1158,16 @@ function rasterizePolygon(vertices3D1) {
    
     [0, 0, 0, 0, 10, 10, 10, 10]
   ]
+  // let vertices = [
+  //   [0, 0, 0],   // Vertex 1
+  //   [10, 0, 0],  // Vertex 2
+  //   [10, 10, 0], // Vertex 3
+  //   [0, 10, 0],  // Vertex 4
+  //   [0, 0, 10],  // Vertex 5
+  //   [10, 0, 10], // Vertex 6
+  //   [10, 10, 10],// Vertex 7
+  //   [0, 10, 10]  // Vertex 8
+  // ];
   const vertices3Dm8 = [
     
     [0, 2, 2, 0, 0, 2, 2, 0],
@@ -1123,7 +1179,8 @@ function rasterizePolygon(vertices3D1) {
   const scaledPoly = scalePolygonMatrix(vertices3Dm8,10, 10, 0, 0);
   console.log("scaledx");
   console.log(scaledPoly);
-  const vertices3D= rotatePolygonMatrix(vertices3Daux, 90, 0,0);
+  let vertices3D= rotateYPolygonMatrix(vertices3Daux, 55, 0,0);
+  vertices3D = rotateXPolygonMatrix(vertices3D,50,0,0);
   // Draw each edge using Bresenham's algorithm
   const focalLength = 100; // Adjust the focal length according to your preference
   // Perspective projection
@@ -1157,17 +1214,32 @@ function rasterizePolygon(vertices3D1) {
   console.log("vertices");
   console.log(vertices);
   //polyLine(vertices);
-  for (let i = 0; i < vertices.length; i++) {
-    const v1 = vertices[i];
-    const v2 = vertices[(i + 1) % vertices.length];
-
-    paintPixelCoords(Math.round(v1[0]), Math.round(v1[1]));
-    paintPixelCoords(Math.round(v2[0]), Math.round(v2[1]));
-      //bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
-   
-  }
+  let v1 = [];
+  let v2 = [];
+  let edges = [
+    [0, 1], [1, 2], [2, 3], [3, 0], // Front face
+    [4, 5], [5, 6], [6, 7], [7, 4], // Back face
+    [0, 4], [1, 5], [2, 6], [3, 7]  // Connect corresponding vertices between front and back faces
+  ];
   
-        //bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+  const colorList = ["#8eea6d", "#4e71fb", "#3772aa", "#ee22a2", "#018453", "#123992", "#3048de", "#8b8cc0"]
+  for (let i = 0; i < edges.length; i++) {
+    color = colorList[i];
+    // v1 = vertices[i];
+    // v2 = vertices[(i + 1) % vertices.length];
+    const v1 = vertices[edges[i][0]];
+    const v2 = vertices[edges[i][1]];
+    bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+    
+    // const oppositeIndex = (i + 4) % vertices.length; // Assuming a cube with 8 vertices
+    // v1 = [vertices[oppositeIndex]];
+
+    // bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+
+  }
+  //paintPixelCoords(Math.round(v1[0]), Math.round(v1[1]));
+  //paintPixelCoords(Math.round(v2[0]), Math.round(v2[1]));
+  
 
 }
 function rotatePolygonMatrix3d(polygon, angle, pivotX, pivotY) {
