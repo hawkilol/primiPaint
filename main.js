@@ -1164,10 +1164,13 @@ function polyLineMouse() {
 function polyLineEnd() {
   console.log("array");
   console.log(pointsArray);
+  eraseTemporary();
+  eraseTemporary();
   polyLine(pointsArray);
   mode = "paint";
   pointsArray = [];
-  eraseTemporary();
+  
+
 }
 function fillMouse() {
   mode = "fill";
@@ -1181,10 +1184,13 @@ function bezierCurveMouse() {
 function endBezier() {
   console.log("array");
   //console.log(pointsArray);
+  eraseTemporary();
+  eraseTemporary();
   paintBezierCurve(pointsArray, bezierResolution);
   mode = "paint";
   pointsArray = [];
-  eraseTemporary();
+  
+
 }
 function componentToHex(c) {
   var hex = c.toString(16);
