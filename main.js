@@ -72,7 +72,6 @@ function paintPixel(e) {
   const y = Math.floor(offsetY / pixelSize) + 1;
   if(handleMode(x, y) === 0){
     eraseTemporary();
-    eraseTemporary();
   };
 }
 function paintPixelInsta(x, y) {
@@ -1093,6 +1092,8 @@ function handleMode(x, y) {
       endXY = [x, y];
       mode = "paint";
       bresenham(startXY[0], startXY[1], endXY[0], endXY[1]);
+      eraseTemporary();
+
       return 0;
     }
   }
@@ -1115,10 +1116,12 @@ function handleMode(x, y) {
       );
       mode = "paint";
       paintCircle(startXY[0], startXY[1], dist);
+      eraseTemporary();
       return 0;
     }
   }
   if (mode === "fill") {
+    eraseTemporary();
     var color = document.getElementById("color-picker").value;
     console.log("fillBegin");
     startXY = [x, y];
@@ -1126,9 +1129,10 @@ function handleMode(x, y) {
     floodFill(startXY[0], startXY[1], color);
     console.log("fillEnd");
     mode = "paint";
-    return 0;
+    return;
   }
   if (mode === "fill2") {
+    eraseTemporary();
     var color = document.getElementById("color-picker").value;
     console.log("fillBegin");
     startXY = [x, y];
@@ -1136,7 +1140,7 @@ function handleMode(x, y) {
     scanFill(startXY[0], startXY[1], color);
     console.log("fillEnd");
     mode = "paint";
-    return 0;
+    return;
   }
   if (mode === "bezier") {
     console.log("startXYplaced");
