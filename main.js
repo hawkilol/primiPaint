@@ -1,7 +1,3 @@
-//Make a valid coordinate check fucntion
-//Make temporary pixel to help ploting
-//in.js:233 Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
-//g
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d", { alpha: false });
 let color = document.getElementById("color-picker").value;
@@ -361,30 +357,6 @@ function recursiveFill(x, y, color, startColor, visited) {
     recursiveFill(x, y + 1, color, startColor, visited); // Down
     recursiveFill(x - 1, y, color, startColor, visited); // Left
     recursiveFill(x, y - 1, color, startColor, visited); // Up
-  }
-}
-
-function floodFill2(x, y, color) {
-  const stack = [];
-  stack.push({ x, y });
-
-  const startColor = getRectColor(x, y);
-  while (stack.length > 0) {
-    const { x, y } = stack.pop();
-    const colorCurr = getRectColor(x, y);
-
-    if (colorCurr !== startColor) {
-      continue;
-    }
-
-    if (colorCurr !== color) {
-      paintPixelColor(x, y, color);
-
-      stack.push({ x: x + 1, y });
-      stack.push({ x: x, y: y + 1 });
-      stack.push({ x: x - 1, y });
-      stack.push({ x, y: y - 1 });
-    }
   }
 }
 
@@ -1317,13 +1289,10 @@ function runSelected() {
     case "3":
     case "4":
     case "5":
-    case "6":
       floodFill(x1, y1, color);
-      break;
-    case "7":
+    case "6":
       scanFill(x1, y1, color);
       break;
-    case "8":
   }
 }
 requestAnimationFrame(processPixelQueue);
