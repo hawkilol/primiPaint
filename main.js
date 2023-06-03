@@ -106,15 +106,10 @@ function paintTemporary(x, y, color){
 function eraseTemporary(){
   let index = 0;
   console.log(previousColors);
-  function paintNextPixel() {
-    if (index < previousColors.length) {
-      
-      const [x, y, color] = previousColors.pop();
-      paintPixelInstaColor(x, y, color);
-      index++;
-    }
+  for(let i = 0; i < previousColors.length; i++){
+    const [x, y, color] = previousColors.pop();
+    paintPixelInstaColor(x, y, color);
   }
-  paintNextPixel();
 }
 function paintPixelCoords(x, y) {
   //color = document.getElementById("color-picker").value;
@@ -1121,22 +1116,24 @@ function handleMode(x, y) {
     }
   }
   if (mode === "fill") {
-    eraseTemporary();
+    previousColors = [];
     var color = document.getElementById("color-picker").value;
     console.log("fillBegin");
     startXY = [x, y];
     console.log(startXY[0]);
+    paintPixelInsta(startXY[0], startXY[1]);
     floodFill(startXY[0], startXY[1], color);
     console.log("fillEnd");
     mode = "paint";
     return;
   }
   if (mode === "fill2") {
-    eraseTemporary();
+    previousColors = [];
     var color = document.getElementById("color-picker").value;
     console.log("fillBegin");
     startXY = [x, y];
     console.log(startXY[0]);
+    paintPixelInsta(startXY[0], startXY[1]);
     scanFill(startXY[0], startXY[1], color);
     console.log("fillEnd");
     mode = "paint";
