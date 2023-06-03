@@ -137,6 +137,7 @@ function processPixelQueue() {
 
   // Schedule the next frame
   requestAnimationFrame(processPixelQueue);
+  
 }
 //paintArray
 function paintArray(coordsArray) {
@@ -936,6 +937,96 @@ function rasterize3DMatrix(matrix) {
       }
     }
   }
+}
+// Function to perform orthogonal projection
+function orthogonalProjection(polygon) {
+  var transformedPolygon = [];
+  
+  for (var i = 0; i < polygon.length; i++) {
+    var point = polygon[i];
+    
+    // Perform orthogonal projection calculations
+    var transformedPoint = [
+      point[0], // x-coordinate remains the same
+      point[1]  // y-coordinate remains the same
+    ];
+    
+    transformedPolygon.push(transformedPoint);
+  }
+  
+  return transformedPolygon;
+}
+
+// Function to perform perspective projection
+function perspectiveProjection(polygon, focalPoint) {
+  var transformedPolygon = [];
+  
+  var focalX = focalPoint[0];
+  var focalY = focalPoint[1];
+  
+  for (var i = 0; i < polygon.length; i++) {
+    var point = polygon[i];
+    
+    var x = point[0];
+    var y = point[1];
+    var z = point[2];
+    
+    // Perform perspective projection calculations
+    var projectedX = x; // Placeholder, replace with your calculation
+    var projectedY = y; // Placeholder, replace with your calculation
+
+    // Add the projected coordinates to the transformedPolygon array
+    var transformedPoint = [projectedX, projectedY];
+    transformedPolygon.push(transformedPoint);
+  }
+  
+  return transformedPolygon;
+}
+
+// Function to perform conic projection
+function conicProjection(polygon) {
+  var transformedPolygon = [];
+  
+  for (var i = 0; i < polygon.length; i++) {
+    var point = polygon[i];
+    
+    var x = point[0];
+    var y = point[1];
+    var z = point[2];
+    
+    // Perform conic projection calculations
+    var projectedX = x; // Placeholder, replace with your calculation
+    var projectedY = y; // Placeholder, replace with your calculation
+
+    // Add the projected coordinates to the transformedPolygon array
+    var transformedPoint = [projectedX, projectedY];
+    transformedPolygon.push(transformedPoint);
+  }
+  
+  return transformedPolygon;
+}
+
+// Function to perform perspective projection with 2 or 3 escape points
+function escapePointsProjection(polygon, escapePoints) {
+  var transformedPolygon = [];
+  
+  for (var i = 0; i < polygon.length; i++) {
+    var point = polygon[i];
+    
+    var x = point[0];
+    var y = point[1];
+    var z = point[2];
+    
+    // Perform escape points projection calculations
+    var projectedX = x; // Placeholder, replace with your calculation
+    var projectedY = y; // Placeholder, replace with your calculation
+
+    // Add the projected coordinates to the transformedPolygon array
+    var transformedPoint = [projectedX, projectedY];
+    transformedPolygon.push(transformedPoint);
+  }
+  
+  return transformedPolygon;
 }
 
 function rasterizePolygon(data) {
