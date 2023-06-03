@@ -116,18 +116,33 @@
       <input type="number" id="rotateZX" min="-1000" max="1000" value="0">
         <input type="number" id="rotateZY" min="-1000" max="1000" value="0">
       <br>
-     
-      <input type="button" value="Projection">
-      <select id="select">
-        <option value="0">Frontal Projection</option>
-        <option value="1">Bresenham</option>
-        <option value="2">Circle</option>
-        <option value="3">Bezier Curve</option>
-        <option value="4">PolyLine</option>
-        <option value="5">Fill Recursive </option>
-        <option value="6">Fill Scan Flood Interative</option>
-       
-      </select>
+      <input type="button" value="Default Projection -> Frontal">
+      <input type="button" value="Isometric Projection">
+      <div data-tip="1:True 0:False">
+        <input type="number" id="isometric" min="0" max="1" value="0">
+      </div>
+      <input type="button" value="Dimetric Projection">
+      <div data-tip="1:True 0:False">
+        <input type="number" id="dimetric" min="0" max="1" value="0">
+      </div>
+      <input type="button" value="Trimetric Projection">
+      <div data-tip="1:True 0:False">
+        <input type="number" id="trimetric" min="0" max="1" value="0">
+      </div>
+      <input type="button" value="Oblique Projection">
+      <div data-tip="Angle In Degrees Ex: 90">
+        <input type="number" id="angleOblique" min="0" max="1" value="0">
+      </div>
+      <input type="button" value="Perspective Projection">
+      <div data-tip="Distancia focal">
+        <input type="number" id="perspectiveDistance" min="0" max="1" value="0">
+      </div>
+      <input type="button" value="Perspective Escape Projection">
+      <div data-tip="Distancia focal">
+        <input type="number" id="perspectiveDistance" min="0" max="1" value="0">
+      </div>
+      <input type="button" value="Conic Projection">
+      
       <!-- select aqui -->
       <!-- <div data-tip="X Coordinate">
         <input type="number" id="translateX" min="-1000" max="1000" value="0">

@@ -3,6 +3,144 @@
 //bronca oracle
 //in.js:233 Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
 //g
+// Function to perform orthogonal projection
+function rasterize3DMatrix(matrix) {
+  console.log("call");
+  
+  const matrixWidth = matrix.length;
+  const matrixHeight = matrix[0].length;
+  const matrixDepth = matrix[0][0].length;
+  console.log(matrixWidth);
+  console.log(matrixHeight);
+  console.log(matrixDepth);
+
+  // Scale the 3D matrix to fit the canvas
+  const scaleX = canvas.width / matrixWidth;
+  const scaleY = canvas.height / matrixHeight;
+  const scaleZ = Math.min(scaleX, scaleY); // Maintain aspect ratio
+
+  for (let z = 0; z < matrixDepth; z++) {
+    for (let y = 0; y < matrixHeight; y++) {
+      for (let x = 0; x < matrixWidth; x++) {
+        // Calculate the 2D coordinates
+        const xPos = x * scaleZ;
+        const yPos = y * scaleZ;
+
+          // If the matrix value is non-zero, draw lines between neighboring points
+          const nextX = (x + 1) * scaleZ;
+          const nextY = y * scaleZ;
+          const nextZ = z * scaleZ;
+
+          const nextXPos = nextX * scaleZ;
+          const nextYPos = nextY * scaleZ;
+          const nextZPos = nextZ * scaleZ;
+
+          // Draw lines using Bresenham's algorithm
+          console.log(xPos);
+          bresenham(xPos, yPos, nextXPos, nextYPos);
+          bresenham(xPos, yPos, xPos, nextZPos);
+          bresenham(nextXPos, yPos, nextXPos, nextZPos);
+          bresenham(xPos, nextYPos, nextXPos, nextYPos);
+          bresenham(xPos, nextYPos, xPos, nextZPos);
+          bresenham(nextXPos, nextYPos, nextXPos, nextZPos);
+
+          // Paint current point
+          paintPixelCoords(xPos, yPos);
+      
+      }
+    }
+  }
+}
+
+function orthogonalProjection(polygon) {
+  var transformedPolygon = [];
+  
+  for (var i = 0; i < polygon.length; i++) {
+    var point = polygon[i];
+    
+    // Perform orthogonal projection calculations
+    var transformedPoint = [
+      point[0], // x-coordinate remains the same
+      point[1]  // y-coordinate remains the same
+    ];
+    
+    transformedPolygon.push(transformedPoint);
+  }
+  
+  return transformedPolygon;
+}
+
+// Function to perform perspective projection
+function perspectiveProjection(polygon, focalPoint) {
+  var transformedPolygon = [];
+  
+  var focalX = focalPoint[0];
+  var focalY = focalPoint[1];
+  
+  for (var i = 0; i < polygon.length; i++) {
+    var point = polygon[i];
+    
+    var x = point[0];
+    var y = point[1];
+    var z = point[2];
+    
+    // Perform perspective projection calculations
+    var projectedX = x; // Placeholder, replace with your calculation
+    var projectedY = y; // Placeholder, replace with your calculation
+
+    // Add the projected coordinates to the transformedPolygon array
+    var transformedPoint = [projectedX, projectedY];
+    transformedPolygon.push(transformedPoint);
+  }
+  
+  return transformedPolygon;
+}
+
+// Function to perform conic projection
+function conicProjection(polygon) {
+  var transformedPolygon = [];
+  
+  for (var i = 0; i < polygon.length; i++) {
+    var point = polygon[i];
+    
+    var x = point[0];
+    var y = point[1];
+    var z = point[2];
+    
+    // Perform conic projection calculations
+    var projectedX = x; // Placeholder, replace with your calculation
+    var projectedY = y; // Placeholder, replace with your calculation
+
+    // Add the projected coordinates to the transformedPolygon array
+    var transformedPoint = [projectedX, projectedY];
+    transformedPolygon.push(transformedPoint);
+  }
+  
+  return transformedPolygon;
+}
+
+// Function to perform perspective projection with 2 or 3 escape points
+function escapePointsProjection(polygon, escapePoints) {
+  var transformedPolygon = [];
+  
+  for (var i = 0; i < polygon.length; i++) {
+    var point = polygon[i];
+    
+    var x = point[0];
+    var y = point[1];
+    var z = point[2];
+    
+    // Perform escape points projection calculations
+    var projectedX = x; // Placeholder, replace with your calculation
+    var projectedY = y; // Placeholder, replace with your calculation
+
+    // Add the projected coordinates to the transformedPolygon array
+    var transformedPoint = [projectedX, projectedY];
+    transformedPolygon.push(transformedPoint);
+  }
+  
+  return transformedPolygon;
+}
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d", { alpha: false });
 let color = document.getElementById("color-picker").value;
