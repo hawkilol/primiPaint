@@ -912,41 +912,27 @@ function rasterize3DMatrix(matrix) {
   }
 }
 
-function rasterizePolygon(vertices3Daux, edges) {
+function rasterizePolygon(data) {
+  let vertices3D = data.array;
+  const edges = data.edges;
+
   console.log("raster");
 
-  const vertices3Dm8 = [
-    
-    [0, 2, 2, 0, 0, 2, 2, 0],
-   
-    [0, 0, 2, 2, 0, 0, 2, 2],
-   
-    [2, 2, 2, 2, 0, 0, 0, 0]
-  ]
-  const scaledPoly = scalePolygonMatrix(vertices3Daux,2,2,2);
-  let vertices3D2 = translatePolygonMatrix2(scaledPoly,12,12,12);
-  vertices3D2 = rotateYPolygonMatrix(vertices3D2, 55, 0,0);
-  vertices3D2 = rotateXPolygonMatrix(vertices3D2, 50, 0,0);
-
-  let vertices3D= rotateYPolygonMatrix(vertices3Daux, 55, 0,0);
-  vertices3D = rotateXPolygonMatrix(vertices3D,50,0,0);
-
-  console.log("test");
-  console.log(vertices3Daux);
-  vertices3Daux = vertices3D;
-  let vertices = vertices3Daux[0].map((_, i) => [vertices3Daux[0][i], vertices3Daux[1][i]]);
+  let transformedPoly = translatePolygonMatrix2(vertices3D,data.translateX,data.translateY,data.translateZ);
+  transformedPoly = scalePolygonMatrix(transformedPoly,data.scaleX,data.scaleY,data.scaleZ);
+  transformedPoly = rotateXPolygonMatrix(transformedPoly, data.angleX, data.rotateXX, data.rotateXY);
+  transformedPoly = rotateYPolygonMatrix(transformedPoly, data.angleY, data.rotateYX, data.rotateYY);
+  transformedPoly = rotateZPolygonMatrix(transformedPoly, data.angleZ, data.rotateZX, data.rotateZX);
+  
+  
+  //Frontal
+  let vertices = transformedPoly[0].map((_, i) => [transformedPoly[0][i], transformedPoly[1][i]]);
 
   console.log("vertices");
   console.log(vertices);
   let v1 = [];
   let v2 = [];
-  //Talvez organizar a matrix orignal dessa forma: 
-  // let edges = [
-  //   [0, 1], [1, 2], [2, 3], [3, 0], // Front face
-  //   [4, 5], [5, 6], [6, 7], [7, 4], // Back face
-  //   [0, 4], [1, 5], [2, 6], [3, 7]  // Connect corresponding vertices between front and back faces
-  // ];
-  
+
   const colorList = ["#8eea6d", "#4e71fb", "#3772aa", "#ee22a2", "#018453", "#123992", "#3048de", "#8b8cc0"]
   for (let i = 0; i < edges.length; i++) {
     color = colorList[i];
@@ -957,22 +943,22 @@ function rasterizePolygon(vertices3Daux, edges) {
     bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
   }
 
-  vertices = vertices3D2[0].map((_, i) => [vertices3D2[0][i], vertices3D2[1][i]]);
-  const lenHalf = vertices.length/2;
-  for (let i = 0; i < vertices.length/2; i++) {
-    color = colorList[i];
-    v1 = vertices[i];
-    v2 = vertices[(i + 1) % lenHalf];
+  // vertices = vertices3D2[0].map((_, i) => [vertices3D2[0][i], vertices3D2[1][i]]);
+  // const lenHalf = vertices.length/2;
+  // for (let i = 0; i < vertices.length/2; i++) {
+  //   color = colorList[i];
+  //   v1 = vertices[i];
+  //   v2 = vertices[(i + 1) % lenHalf];
   
 
-    bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
-    v1 = vertices[i + lenHalf];
-    v2 = vertices[((i + 1) % lenHalf) + lenHalf];
-    bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
-    v1 = vertices[i];
-    v2 = vertices[i + lenHalf];
-    bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
-  }
+  //   bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+  //   v1 = vertices[i + lenHalf];
+  //   v2 = vertices[((i + 1) % lenHalf) + lenHalf];
+  //   bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+  //   v1 = vertices[i];
+  //   v2 = vertices[i + lenHalf];
+  //   bresenham(Math.round(v1[0]), Math.round(v1[1]), Math.round(v2[0]), Math.round(v2[1]));
+  // }
 
   
 
@@ -1002,17 +988,55 @@ function rotatePolygonMatrix3d(polygon, angle, pivotX, pivotY) {
 
   return rotatedVertices;
 }
-function convertToArray() {
+function getRasterValues() {
   // Get the input value
-  var input = document.getElementById('arrayInput').value;
-  var edgesInput = document.getElementById('edgesInput').value;
+  
+  const data = {
+    translateX: JSON.parse(document.getElementById('translateX').value),
+    translateY: JSON.parse(document.getElementById('translateY').value),
+    translateZ: JSON.parse(document.getElementById('translateZ').value),
+    angleX: JSON.parse(document.getElementById('angleX').value),
+    rotateXX: JSON.parse(document.getElementById('rotateXX').value),
+    rotateXY: JSON.parse(document.getElementById('rotateXY').value),
+    angleY: JSON.parse(document.getElementById('angleY').value),
+    rotateYX: JSON.parse(document.getElementById('rotateYX').value),
+    rotateYY: JSON.parse(document.getElementById('rotateYY').value),
+    angleZ: JSON.parse(document.getElementById('angleZ').value),
+    rotateZX: JSON.parse(document.getElementById('rotateZX').value),
+    rotateZY: JSON.parse(document.getElementById('rotateZY').value),
+    scaleX: JSON.parse(document.getElementById('scaleX').value),
+    scaleY: JSON.parse(document.getElementById('scaleY').value),
+    scaleZ: JSON.parse(document.getElementById('scaleZ').value),
+    array: JSON.parse(document.getElementById('arrayInput').value),
+    edges: JSON.parse(document.getElementById('edgesInput').value)
+  };
+  
+  console.log(data.translateX);
+  
+  console.log({
+    translateX: data.translateX,
+    translateY: data.translateY,
+    translateZ: data.translateZ,
+    angleX: data.angleX,
+    rotateXX: data.rotateXX,
+    rotateXY: data.rotateXY,
+    angleY: data.angleY,
+    rotateYX: data.rotateYX,
+    rotateYY: data.rotateYY,
+    angleZ: data.angleZ,
+    rotateZX: data.rotateZX,
+    rotateZY: data.rotateZY,
+    scaleX: data.scaleX,
+    scaleY: data.scaleY,
+    scaleZ: data.scaleZ
+  });
+  
   try {
     // Parse the input string into a 3D array
-    var array = JSON.parse(input);
-    var edges = JSON.parse(edgesInput);
-    console.log('Converted 3D array:', array);
-    console.log('Converted Edges:', edges);
-    rasterizePolygon(array,edges);
+    console.log('Converted 3D array:', data.array);
+    console.log('Converted Edges:', data.edges);
+
+    rasterizePolygon(data);
   } catch (error) {
     console.log('Error parsing input:', error);
   }
