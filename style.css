@@ -33,7 +33,7 @@ header {
   color: white;
   text-align: center;
   padding: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 
@@ -53,8 +53,11 @@ body {
   font-family: 'Darker Grotesque', sans-serif;
 }
 .container {
+  
   margin: 100px auto;
-  max-width: 600px;
+  margin-top: 5px;
+  margin-left: 15px;
+  width: 1400px;
 }
 .card {
   background: #fff;
@@ -63,19 +66,19 @@ body {
   padding: 20px;
   border: 4px solid #000;
 }
-.card h1 {
+.cardb {
   margin: 0;
   font-size: 42px;
   letter-spacing: 2px;
 }
-.card p {
+.cardc {
   font-size: 18px;
 }
 .button-container {
   text-align: right;
 }
 input {
-  margin: 0 5px;
+  margin: 5px;
   background: #fff;
   font-size: 17px;
   padding: 9px 14px;
@@ -84,28 +87,44 @@ input {
   box-shadow: 5px 5px 0px 0px #000;
   cursor: pointer;
 }
-.arrayInput {
-  margin: 0 5px;
-  background: #fff;
-  width: 500px;
-  font-size: 17px;
-  padding: 9px 14px;
-  border-radius: 6px;
-  border: 3px solid #000;
-  box-shadow: 5px 5px 0px 0px #000;
-  cursor: pointer;
-}
+
 #arrayInput {
-  margin: 50 4px;
+  margin: 20px;
+  margin-left: 1px;
   background: #fff;
   font-size: 17px;
-  padding: 9px 50px;
+  padding-top: 10px;
+  padding-bottom: 70px;
   border-radius: 6px;
   border: 3px solid #000;
   box-shadow: 5px 5px 0px 0px #000;
   cursor: pointer;
  
 }
+#label {
+  background: #fff;
+  font-size: 17px;
+  padding: 9px 1px;
+  border-radius: 6px;
+  margin-right:10px;
+
+  border: 3px solid #000;
+  box-shadow: 5px 5px 0px 0px #000;
+  cursor: pointer;
+}
+#edgesInput {
+  margin: 20 1px;
+  background: #fff;
+  font-size: 17px;
+  padding-top: 10px;
+  padding-bottom: 70px;
+  border-radius: 6px;
+  border: 3px solid #000;
+  box-shadow: 5px 5px 0px 0px #000;
+  cursor: pointer;
+ 
+}
+
 select {
   margin: 0 5px;
   background: #fff;
@@ -124,4 +143,75 @@ button.green {
 button:active{
   transform: translateY(4px);
    box-shadow: 1px 2px 0px 0px #000;
+}
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: transparent;
+}
+::-moz-placeholder { /* Firefox 19+ */
+  color: transparent;
+}
+:-ms-input-placeholder { /* IE 10+ */
+  color: transparent;
+}
+:-moz-placeholder { /* Firefox 18- */
+  color: transparent;
+}
+:hover::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: #999;
+}
+:hover::-moz-placeholder { /* Firefox 19+ */
+  color: #999;
+}
+:hover:-ms-input-placeholder { /* IE 10+ */
+  color: #999;
+}
+:hover:-moz-placeholder { /* Firefox 18- */
+  color: #999;
+}
+[data-tip] {
+	position:relative;
+
+  display:inline;
+
+}
+[data-tip]:before {
+	content:'';
+	/* hides the tooltip when not hovered */
+	display:none;
+	content:'';
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-bottom: 5px solid #1a1a1a;	
+	position:absolute;
+	top:30px;
+	left:35px;
+	z-index:8;
+	font-size:0;
+	line-height:0;
+	width:0;
+	height:0;
+}
+[data-tip]:after {
+	display:none;
+	content:attr(data-tip);
+	position:absolute;
+	top:35px;
+	left:0px;
+	padding:5px 8px;
+	background:#1a1a1a;
+	color:#fff;
+	z-index:9;
+	font-size: 0.75em;
+	height:18px;
+	line-height:18px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	white-space:nowrap;
+	word-wrap:normal;
+}
+[data-tip]:hover:before,
+[data-tip]:hover:after {
+	display:block;
 }

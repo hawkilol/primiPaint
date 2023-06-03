@@ -603,35 +603,6 @@ function translatePolygon(polygon, dx, dy) {
 }
 
 //Rotation
-function rotatePolygon(polygon, angle, pivotX, pivotY) {
-  const modifiedPolygon = [];
-  // Convert the angle to radians
-  const radians = (Math.PI / 180) * angle;
-
-  // Iterate over each vertex of the polygon
-  for (let i = 0; i < polygon.length; i++) {
-    const vertex = polygon[i];
-
-    const x = vertex[0];
-    const y = vertex[1];
-
-    // Translate the pivot point to the origin
-    const translatedX = x - pivotX;
-    const translatedY = y - pivotY;
-
-    // Apply the rotation formula
-    const rotatedX = translatedX * Math.cos(radians) - translatedY * Math.sin(radians);
-    const rotatedY = translatedX * Math.sin(radians) + translatedY * Math.cos(radians);
-
-    // Translate the rotated vertex back to its original position
-    vertex[0] = rotatedX + pivotX;
-    vertex[1] = rotatedY + pivotY;
-    modifiedPolygon.push(vertex);
-  }
-
-  polyLine(modifiedPolygon);
-  return modifiedPolygon
-}
 
 //Scaling
 function scalePolygon(polygon, scaleX, scaleY, fixedX, fixedY) {
@@ -791,7 +762,7 @@ function translatePolygonMatrix2(polygon, dx, dy, dz) {
   return transposeMatrix(traslatedVertices);
 }
 
-function rotatePoly(polygon, rotationMatrix, angle, pivotX, pivotY){
+function rotatePoly(polygon, rotationMatrix, pivotX, pivotY){
   let rotatedVertices = [];
   for (let i = 0; i < polygon[0].length; i++) {
 
@@ -843,7 +814,7 @@ function rotateYPolygonMatrix(polygon, angle, pivotX, pivotY) {
   //rotationMatrix[0][2] = pivotX * (1 - cosTheta) - pivotY * sinTheta;
   //rotationMatrix[2][2] = pivotY * (1 - cosTheta) + pivotX * sinTheta;
 
-  return rotatePoly(polygon, rotationMatrix, angle, pivotX, pivotY);
+  return rotatePoly(polygon, rotationMatrix, pivotX, pivotY);
 }
 
 
@@ -871,7 +842,7 @@ function rotateXPolygonMatrix(polygon, angle, pivotX, pivotY) {
 
   //rotationMatrix[0][2] = pivotX * (1 - cosTheta) - pivotY * sinTheta;
   //rotationMatrix[1][2] = pivotY * (1 - cosTheta) + pivotX * sinTheta;
-  return rotatePoly(polygon, rotationMatrix, angle, pivotX, pivotY);
+  return rotatePoly(polygon, rotationMatrix, pivotX, pivotY);
 
 }
 function rotateZPolygonMatrix(polygon, angle, pivotX, pivotY) {
@@ -889,7 +860,7 @@ function rotateZPolygonMatrix(polygon, angle, pivotX, pivotY) {
     [sinTheta, cosTheta, pivotY * (1 - cosTheta) - pivotX * sinTheta],
     [0, 0, 1]
   ];
-  return rotatePoly(polygon, rotationMatrix, angle, pivotX, pivotY);
+  return rotatePoly(polygon, rotationMatrix, pivotX, pivotY);
 
 }
 

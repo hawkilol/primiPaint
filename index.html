@@ -16,6 +16,7 @@
     <label for="pixelSize">PixelSize:</label>
     <input type="number" id="pixelSize" name="pixelSize" min="1" max="100" value="5">
 <input type="button" onclick="getWHinputs()" value="Make Canvas">
+
 <div class="container">
   <canvas id="canvas" width="1400" height="600"></canvas>
   <form>
@@ -54,14 +55,82 @@
     <input type="number" id="y2" min="-1000" max="1000" value="1">
       Y2
       <br>
-      <input type="text" id="text" value="">
+      <input type="text" id="text" value="" placeholder="text">
       <br>
       <input type="button" onclick="runSelected()" value="Run Selected">
       <br>
-      <input type="text" size="80" id="arrayInput" placeholder="Enter 3D array as a string" />
-      <input type="text" size="80" id="edgesInput" placeholder="Enter enter the edges" />
+      <input type="button" value="Translate">
+      <div data-tip="X Coordinate">
+        <input type="number" id="translateX" min="-1000" max="1000" value="0">
 
-      <input type="button" onclick="convertToArray()" value="Input Array"></input>
+      </div>
+      <div data-tip="Y Coordinate">
+        <input type="number" id="translateY" min="-1000" max="1000" value="0">
+
+      </div>
+      <div data-tip="Z Coordinate">
+        <input type="number" id="translateZ" min="-1000" max="1000" value="0">
+      </div>
+      <br>
+      <input type="button" value="RotateX">
+      <div data-tip="Angle In Degrees Ex: 90">
+        <input type="number" id="angleX" min="-1000" max="1000" value="0">
+      </div>
+      <div data-tip="Fixed X Coordinate">
+      <input type="number" id="rotateXX" min="-1000" max="1000" value="0">
+      </div>
+      <div data-tip="Fixed Y Coordinate">
+        <input type="number" id="rotateXY" min="-1000" max="1000" value="0">
+      </div>
+      
+      <br>
+      <input type="button" value="RotateY">
+      <div data-tip="Angle In Degrees Ex: 90">
+        <input type="number" id="angleY" min="-1000" max="1000" value="0">
+      </div>
+      <div data-tip="Fixed X Coordinate">
+      <input type="number" id="rotateYX" min="-1000" max="1000" value="0">
+      </div>
+      <div data-tip="Fixed Y Coordinate">
+        <input type="number" id="rotateYY" min="-1000" max="1000" value="0">
+      </div>
+      <br>
+      <input type="button" value="RotateZ">
+      <div data-tip="Angle In Degrees Ex: 90">
+        <input type="number" id="angleZ" min="-1000" max="1000" value="0">
+      </div>
+      <input type="number" id="rotateZX" min="-1000" max="1000" value="0">
+        <input type="number" id="rotateZY" min="-1000" max="1000" value="0">
+      <br>
+     
+      <input type="button" value="Scale">
+      <div data-tip="X Coordinate">
+        <input type="number" id="scaleX" min="-1000" max="1000" value="1">
+
+      </div>
+      <div data-tip="Y Coordinate">
+        <input type="number" id="scaleY" min="-1000" max="1000" value="1">
+
+      </div>
+      <div data-tip="Z Coordinate">
+        <input type="number" id="scaleZ" min="-1000" max="1000" value="1">
+      </div>
+      <br>
+      <textarea cols="69" id="arrayInput" placeholder="Enter 3D array as a string" >
+      [
+      [0, 10, 10, 0, 0, 10, 10, 0],
+      [0, 0, 10, 10, 0, 0, 10, 10],
+      [0, 0, 0, 0, 10, 10, 10, 10]]
+      </textarea>
+      <textarea cols="69" id="edgesInput" placeholder="Enter enter the edges" >
+        [
+        [0, 1], [1, 2], [2, 3], [3, 0],
+        [4, 5], [5, 6], [6, 7], [7, 4],
+        [0, 4], [1, 5], [2, 6], [3, 7]]
+        </textarea>
+
+      <br>
+      <input type="button" onclick="convertToArray()" value="Draw Polygon!"></input>
 
       
 </div>
