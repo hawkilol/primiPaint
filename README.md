@@ -1,5 +1,12 @@
 # Primitivas computação grafica
 
+Dev Build Instructions:
+```
+$ npm i
+
+$ npm run dev
+```
+
 OBS: Funciona melhor no chrome
 
 codepen: https://codepen.io/Abacatossaur/pen/BaqbNbX
