@@ -51,7 +51,30 @@ function rasterize3DMatrix(matrix) {
     }
   }
 }
-
+function boundFill(x, y, color, color1) {
+  const colorCurr = getRectColor(x, y);
+  if (colorCurr !== color && colorCurr !== color1) {
+    paintPixelColor(x, y, color);
+    boundFill(x + 1, y, color, color1);
+    boundFill(x, y + 1, color, color1);
+    boundFill(x - 1, y, color, color1);
+    boundFill(x, y - 1, color, color1);
+  }
+}
+function boundFill8(x, y, color, color1) {
+  const colorCurr = getRectColor(x, y);
+  if (colorCurr !== color && colorCurr !== color1) {
+    paintPixelColor(x, y, color);
+    boundFill8(x + 1, y, color, color1);
+    boundFill8(x, y + 1, color, color1);
+    boundFill8(x - 1, y, color, color1);
+    boundFill8(x, y - 1, color, color1);
+    boundFill8(x - 1, y - 1, color, color1);
+    boundFill8(x - 1, y + 1, color, color1);
+    boundFill8(x + 1, y - 1, color, color1);
+    boundFill8(x + 1, y + 1, color, color1);
+  }
+}
 function orthogonalProjection(polygon) {
   var transformedPolygon = [];
   

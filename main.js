@@ -306,30 +306,7 @@ function getRectColorRgb(x, y) {
 
 // //Recursive Boundary fill
 
-function boundFill(x, y, color, color1) {
-  const colorCurr = getRectColor(x, y);
-  if (colorCurr !== color && colorCurr !== color1) {
-    paintPixelColor(x, y, color);
-    boundFill(x + 1, y, color, color1);
-    boundFill(x, y + 1, color, color1);
-    boundFill(x - 1, y, color, color1);
-    boundFill(x, y - 1, color, color1);
-  }
-}
-function boundFill8(x, y, color, color1) {
-  const colorCurr = getRectColor(x, y);
-  if (colorCurr !== color && colorCurr !== color1) {
-    paintPixelColor(x, y, color);
-    boundFill8(x + 1, y, color, color1);
-    boundFill8(x, y + 1, color, color1);
-    boundFill8(x - 1, y, color, color1);
-    boundFill8(x, y - 1, color, color1);
-    boundFill8(x - 1, y - 1, color, color1);
-    boundFill8(x - 1, y + 1, color, color1);
-    boundFill8(x + 1, y - 1, color, color1);
-    boundFill8(x + 1, y + 1, color, color1);
-  }
-}
+
 //complete recursive floodfill
 function floodFill(x, y, color) {
   const visited = new Set();
@@ -360,28 +337,6 @@ function recursiveFill(x, y, color, startColor, visited) {
   }
 }
 
-function stackFill8(x, y, color, color1) {
-  const stack = [];
-  stack.push({ x, y });
-
-  while (stack.length > 0) {
-    const { x, y } = stack.pop();
-    const colorCurr = getRectColor(x, y);
-
-    if (colorCurr !== color && colorCurr !== color1) {
-      paintPixelColor(x, y, color);
-
-      stack.push({ x: x + 1, y });
-      stack.push({ x: x, y: y + 1 });
-      stack.push({ x: x - 1, y });
-      stack.push({ x, y: y - 1 });
-      stack.push({ x: x + 1, y: y + 1 });
-      stack.push({ x: x - 1, y: y + 1 });
-      stack.push({ x: x + 1, y: y - 1 });
-      stack.push({ x: x - 1, y: y - 1 });
-    }
-  }
-}
 //Bezier curv
 // Function to calculate binomial coefficient
 function binomialCoefficient(n, k) {
@@ -646,19 +601,11 @@ function scalePolygonMatrix(polygon, scaleX, scaleY, scaleZ) {
     for(var c=0; c < polygon.length; c++){
       column.push(polygon[c][i]);
     }
-    console.log("polyS");
-    console.log(column);
-    console.log("Sca");
-    console.log(scalingMatrix);
     // Apply the scaling matrix to the vertex vector
     const scaledVertex = matrixXVector(scalingMatrix,column);
-    console.log("scaledVertex");
-    console.log(scaledVertex);
     scaledVertices.push(scaledVertex);
   }
   const scaledMatrix = transposeMatrix(scaledVertices);
-  console.log("ts");
-  console.log(scaledVertices);
   return scaledMatrix
 }
 
@@ -879,16 +826,26 @@ function applyProjection(polygon, projectionMatrix) {
   return transposeMatrix(projectedVertices);
 }
 
-
-function isometricProjection(polygon) {
-  const isometricMatrix = [
-    [0.866, -0.5, 0],
-    [0.866, 0.5, 0],
-    [0, 0, 1]
+function perspectiveProjection(polygon, distance) {
+  const perspectiveMatrix = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1 / distance]
   ];
 
-  return applyProjection(polygon, isometricMatrix);
+  return applyProjection(polygon, perspectiveMatrix);
 }
+
+function conicProjection(polygon, distance) {
+  const conicMatrix = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, distance]
+  ];
+
+  return applyProjection(polygon, conicMatrix);
+}
+
 
 function rasterizePolygon(data) {
   let vertices3D = data.array;
@@ -901,10 +858,40 @@ function rasterizePolygon(data) {
   transformedPoly = rotateXPolygonMatrix(transformedPoly, data.angleX, data.rotateXX, data.rotateXY);
   transformedPoly = rotateYPolygonMatrix(transformedPoly, data.angleY, data.rotateYX, data.rotateYY);
   transformedPoly = rotateZPolygonMatrix(transformedPoly, data.angleZ, data.rotateZX, data.rotateZX);
-  
-  
+  //transformedPoly = perspectiveProjection(transformedPoly, data.perspectiveDistance);
+  //transformedPoly = conicProjection(transformedPoly, data.conicDistance);
+
   //Frontal
-  let vertices = transformedPoly[0].map((_, i) => [transformedPoly[0][i], transformedPoly[1][i]]);
+  //let vertices = transformedPoly[0].map((_, i) => [transformedPoly[0][i], transformedPoly[1][i]]);
+
+  let focalDistance = data.ortoDistance; 
+
+  let vertices = transformedPoly[0].map((_, i) => {
+  let x = transformedPoly[0][i];
+  let y = transformedPoly[1][i];
+  let z = transformedPoly[2][i];
+
+  let scaleFactor = focalDistance / (focalDistance + z);
+  let projectedX = x * scaleFactor;
+  let projectedY = y * scaleFactor;
+
+  return [projectedX, projectedY];
+  });
+
+  let focalLength = data.perspectiveDistance;
+
+  vertices = transformedPoly[0].map((_, i) => {
+  let x = transformedPoly[0][i];
+  let y = transformedPoly[1][i];
+  let z = transformedPoly[2][i];
+
+  let projectedX = (focalLength * x) / (focalLength + z);
+  let projectedY = (focalLength * y) / (focalLength + z);
+
+  return [projectedX, projectedY];
+  });
+
+
 
   console.log("vertices");
   console.log(vertices);
@@ -985,6 +972,9 @@ function getRasterValues() {
     scaleX: JSON.parse(document.getElementById('scaleX').value),
     scaleY: JSON.parse(document.getElementById('scaleY').value),
     scaleZ: JSON.parse(document.getElementById('scaleZ').value),
+    ortoDistance: JSON.parse(document.getElementById('ortoDistance').value),
+    conicDistance: JSON.parse(document.getElementById('conicDistance').value),
+    perspectiveDistance: JSON.parse(document.getElementById('perspectiveDistance').value),
     array: JSON.parse(document.getElementById('arrayInput').value),
     edges: JSON.parse(document.getElementById('edgesInput').value)
   };
@@ -1167,7 +1157,7 @@ function runSelected() {
   var color = document.getElementById("color-picker").value;
   switch (algo) {
     case "0":
-      paintPixelCoords(x1, y1);
+      paintPixelInsta(x1, y1);
       break;
     case "1":
       bresenham(x1, y1, x2, y2);

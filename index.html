@@ -22,7 +22,6 @@
 <div class="container">
   <canvas id="canvas" width="1400" height="600"></canvas>
   <form>
-    <input type="button" onclick="bresenhamMouse()" value="Line">
     <input type="button" onclick="bresenhamMouse()" value="bresenhamLine">
     <input type="button" onclick="circleMouse()" value="circle">
     <input type="button" onclick="polyLineMouse()" value="polyLine">
@@ -88,7 +87,7 @@
       <br>
       <input type="button" value="RotateX">
       <div data-tip="Angle In Degrees Ex: 90">
-        <input type="number" id="angleX" min="-1000" max="1000" value="0">
+        <input type="number" id="angleX" min="-360" max="360" value="0">
       </div>
       <div data-tip="Fixed X Coordinate">
       <input type="number" id="rotateXX" min="-1000" max="1000" value="0">
@@ -100,7 +99,7 @@
       <br>
       <input type="button" value="RotateY">
       <div data-tip="Angle In Degrees Ex: 90">
-        <input type="number" id="angleY" min="-1000" max="1000" value="0">
+        <input type="number" id="angleY" min="-360" max="360" value="0">
       </div>
       <div data-tip="Fixed X Coordinate">
       <input type="number" id="rotateYX" min="-1000" max="1000" value="0">
@@ -111,50 +110,21 @@
       <br>
       <input type="button" value="RotateZ">
       <div data-tip="Angle In Degrees Ex: 90">
-        <input type="number" id="angleZ" min="-1000" max="1000" value="0">
+        <input type="number" id="angleZ" min="-360" max="360" value="0">
       </div>
       <input type="number" id="rotateZX" min="-1000" max="1000" value="0">
         <input type="number" id="rotateZY" min="-1000" max="1000" value="0">
       <br>
-      <input type="button" value="Default Projection -> Frontal">
-      <input type="button" value="Isometric Projection">
-      <div data-tip="1:True 0:False">
-        <input type="number" id="isometric" min="0" max="1" value="0">
+      <input type="button" value="Ortographic Projection -> Frontal">
+      <div data-tip="Distancia focal">
+        <input type="number" id="ortoDistance" min="-1000" max="1000" value="200">
       </div>
-      <input type="button" value="Dimetric Projection">
-      <div data-tip="1:True 0:False">
-        <input type="number" id="dimetric" min="0" max="1" value="0">
-      </div>
-      <input type="button" value="Trimetric Projection">
-      <div data-tip="1:True 0:False">
-        <input type="number" id="trimetric" min="0" max="1" value="0">
-      </div>
-      <input type="button" value="Oblique Projection">
-      <div data-tip="Angle In Degrees Ex: 90">
-        <input type="number" id="angleOblique" min="0" max="1" value="0">
-      </div>
+      <br>
       <input type="button" value="Perspective Projection">
       <div data-tip="Distancia focal">
-        <input type="number" id="perspectiveDistance" min="0" max="1" value="0">
+        <input type="number" id="perspectiveDistance" min="-1000" max="1000" value="200">
       </div>
-      <input type="button" value="Perspective Escape Projection">
-      <div data-tip="Distancia focal">
-        <input type="number" id="perspectiveDistance" min="0" max="1" value="0">
-      </div>
-      <input type="button" value="Conic Projection">
-      
-      <!-- select aqui -->
-      <!-- <div data-tip="X Coordinate">
-        <input type="number" id="translateX" min="-1000" max="1000" value="0">
-
-      </div>
-      <div data-tip="Y Coordinate">
-        <input type="number" id="translateY" min="-1000" max="1000" value="0">
-
-      </div>
-      <div data-tip="Z Coordinate">
-        <input type="number" id="translateZ" min="-1000" max="1000" value="0">
-      </div> -->
+      <br>
       <br>
       <textarea cols="69" id="arrayInput" placeholder="Enter 3D array as a string" >
       [
