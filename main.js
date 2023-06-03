@@ -1,6 +1,5 @@
 //Make a valid coordinate check fucntion
 //Make temporary pixel to help ploting
-//bronca oracle
 //in.js:233 Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
 //g
 const canvas = document.getElementById("canvas");
@@ -17,6 +16,8 @@ let pointsArray = [];
 let bezierResolution = 100;
 let mode = "paint";
 let pixelQueue = []; // Queue to store the pixel fill operations
+let temporaryColor = "#7a8584";
+let previousColors = [];
 // let coord = { x: 0, y: 0 };
 function getWHinputs() {
   width = Number(document.getElementById("width").value);
@@ -69,7 +70,10 @@ function paintPixel(e) {
   const offsetY = rect.top + canvas.height / 2 - e.clientY;
   const x = Math.floor(offsetX / pixelSize);
   const y = Math.floor(offsetY / pixelSize) + 1;
-  handleMode(x, y);
+  if(handleMode(x, y) === 0){
+    eraseTemporary();
+    eraseTemporary();
+  };
 }
 function paintPixelInsta(x, y) {
   const color = document.getElementById("color-picker").value;
@@ -82,6 +86,36 @@ function paintPixelInsta(x, y) {
     })
     
   }
+}
+function paintPixelInstaColor(x, y, color) {
+  const gridX = Math.floor(width / 2) + x;
+  const gridY = Math.floor(height / 2) - y;
+  if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
+    requestAnimationFrame (() => {
+      ctx.fillStyle = color;
+      ctx.fillRect(gridX * pixelSize, gridY * pixelSize, pixelSize, pixelSize);
+    })
+    
+  }
+}
+function paintTemporary(x, y, color){
+  previousColors.push([x, y, getRectColor(x,y)]);
+  paintPixelInstaColor(x, y, color);
+  
+  
+}
+function eraseTemporary(){
+  let index = 0;
+  console.log(previousColors);
+  function paintNextPixel() {
+    if (index < previousColors.length) {
+      
+      const [x, y, color] = previousColors.pop();
+      paintPixelInstaColor(x, y, color);
+      index++;
+    }
+  }
+  paintNextPixel();
 }
 function paintPixelCoords(x, y) {
   //color = document.getElementById("color-picker").value;
@@ -113,16 +147,14 @@ function processPixelQueue() {
 //paintArray
 function paintArray(coordsArray) {
   let index = 0;
-
   function paintNextPixel() {
     if (index < coordsArray.length) {
-      const [x, y] = coordsArray[index];
-      paintPixelCoords(x, y);
+      const [x, y, color] = coordsArray[index];
+      paintPixelInstaColor(x, y, color);
       index++;
       requestAnimationFrame(paintNextPixel);
     }
   }
-
   paintNextPixel();
 }
 ///Algos
@@ -1045,13 +1077,15 @@ function getRasterValues() {
 function handleMode(x, y) {
   if (mode === "paint") {
     paintPixelInsta(x, y);
+  }else{
+    paintTemporary(x, y, temporaryColor);
   }
   if (mode === "line" || mode === "lineBegin") {
     if (mode === "line") {
       console.log("startXYplaced");
       startXY = [x, y];
       mode = "lineBegin";
-      return;
+      return 1;
     }
     if (mode === "lineBegin") {
       console.log("endXYplaced");
@@ -1059,6 +1093,7 @@ function handleMode(x, y) {
       endXY = [x, y];
       mode = "paint";
       bresenham(startXY[0], startXY[1], endXY[0], endXY[1]);
+      return 0;
     }
   }
   if (mode === "circle" || mode === "circleBegin") {
@@ -1080,6 +1115,7 @@ function handleMode(x, y) {
       );
       mode = "paint";
       paintCircle(startXY[0], startXY[1], dist);
+      return 0;
     }
   }
   if (mode === "fill") {
@@ -1090,6 +1126,7 @@ function handleMode(x, y) {
     floodFill(startXY[0], startXY[1], color);
     console.log("fillEnd");
     mode = "paint";
+    return 0;
   }
   if (mode === "fill2") {
     var color = document.getElementById("color-picker").value;
@@ -1099,6 +1136,7 @@ function handleMode(x, y) {
     scanFill(startXY[0], startXY[1], color);
     console.log("fillEnd");
     mode = "paint";
+    return 0;
   }
   if (mode === "bezier") {
     console.log("startXYplaced");
@@ -1128,6 +1166,7 @@ function polyLineEnd() {
   polyLine(pointsArray);
   mode = "paint";
   pointsArray = [];
+  eraseTemporary();
 }
 function fillMouse() {
   mode = "fill";
@@ -1144,6 +1183,7 @@ function endBezier() {
   paintBezierCurve(pointsArray, bezierResolution);
   mode = "paint";
   pointsArray = [];
+  eraseTemporary();
 }
 function componentToHex(c) {
   var hex = c.toString(16);
