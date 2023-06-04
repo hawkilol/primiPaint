@@ -629,47 +629,8 @@ function transposeMatrix(matrix) {
   return transposedMatrix;
 }
 
-//Broken!?
-function translatePolygonMatrix(polygon, dx, dy) {
-  
-  const translationMatrix = [
-    [1, 0, dx],
-    [0, 1, dy],
-    [0, 0, 1]
-  ];
-  
 
-  // Create a new array to store the transformed polygon
-  const transformedPolygon = [];
-  const transformedPolygon2 = [];
-  // Iterate over each vertex of the polygon
-  for (let i = 0; i < polygon.length; i++) {
-    const vertex = polygon[i];
-    
-    // Convert the vertex to homogeneous coordinates [x, y, 1]
-    const homogeneousMatrix = [
-      [vertex[0]],
-      [vertex[1]],
-      [1]
-    ];
-
-    // Apply the translation matrix to the vertex
-    
-    const translatedVertex = matrixMultiply(translationMatrix, homogeneousMatrix);
-
-    // Add the transformed vertex to the new polygon array
-    console.log(translatedVertex);
-    transformedPolygon.push([translatedVertex[0], translatedVertex[1]]);
-    transformedPolygon2.push([translatedVertex[0][0], translatedVertex[1][0]]);
-  }
-
-  // Return the transformed polygon
-  console.log(transformedPolygon2);
-  
-  polyLine(transformedPolygon2);
-  return transformedPolygon;
-}
-//Wrong
+//Translate
 function translatePolygonMatrix2(polygon, dx, dy, dz) {
   const translationMatrix = [
     [1, 0, dx],
@@ -677,11 +638,6 @@ function translatePolygonMatrix2(polygon, dx, dy, dz) {
     [0, 0, dz]
   ];
 
-  ///const homogeneousMatrix = vertices2d2Matrix(polygon);
-  //console.log(homogeneousMatrix);
-  
-  //const translatedMatrix = matrixXVector(translationMatrix, homogeneousMatrix);
-  
   let traslatedVertices = [];
  
   for (let i = 0; i < polygon[0].length; i++) {
@@ -695,7 +651,6 @@ function translatePolygonMatrix2(polygon, dx, dy, dz) {
     console.log("trans");
     console.log(translationMatrix);
     
-    //let traslatedVertice = matrixXVector(translationMatrix,column);
     traslatedVertice = [column[0] + dx ,column[1] + dy, column[2] + dz];
     console.log("transV");
     console.log(traslatedVertice);
@@ -848,6 +803,10 @@ function conicProjection(polygon, distance) {
 
 
 function rasterizePolygon(data) {
+  if(data.dynamicTrans === 1){
+    getWHinputs();
+  }
+  
   let vertices3D = data.array;
   const edges = data.edges;
 
@@ -859,22 +818,11 @@ function rasterizePolygon(data) {
   transformedPoly = rotateYPolygonMatrix(transformedPoly, data.angleY, data.rotateYX, data.rotateYY);
   transformedPoly = rotateZPolygonMatrix(transformedPoly, data.angleZ, data.rotateZX, data.rotateZX); 
   
-  let focalDistance = data.ortoDistance; 
+  
   //Ortographic Front
   // if(data.ortoGraphicFrontal === 1){
 
-  
-  let vertices = transformedPoly[0].map((_, i) => {
-  let x = transformedPoly[0][i];
-  let y = transformedPoly[1][i];
-  let z = transformedPoly[2][i];
-
-  let scaleFactor = focalDistance / (focalDistance + z);
-  let projectedX = x * scaleFactor;
-  let projectedY = y * scaleFactor;
-
-  return [projectedX, projectedY];
-  });
+  let vertices = transformedPoly[0].map((_, i) => [transformedPoly[0][i], transformedPoly[1][i]]);
  
   if(data.ortoGraphicTop === 1){
 
@@ -1009,7 +957,9 @@ function getRasterValues() {
     perspectiveValue: JSON.parse(document.getElementById('perspectiveValue').value),
     perspectiveDistance: JSON.parse(document.getElementById('perspectiveDistance').value),
     array: JSON.parse(document.getElementById('arrayInput').value),
-    edges: JSON.parse(document.getElementById('edgesInput').value)
+    edges: JSON.parse(document.getElementById('edgesInput').value),
+    dynamicTrans: JSON.parse(document.getElementById('dynamicTrans').value)
+
   };
   
   console.log(data.translateX);

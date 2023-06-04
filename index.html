@@ -30,6 +30,7 @@
     <input type="button" onclick="fill2Mouse()" value="fill Scan">
     <input type="button" onclick="bezierCurveMouse()" value="bezierCurve">
     <input type="button" onclick="endBezier()" value="plotBezier">
+    <input type="button" onclick="getRasterValues()" value="Draw Polygon!"></input>
     <div class="select">
       <select id="select">
         <option value="0">Paint Pixel</option>
@@ -55,9 +56,13 @@
     <input type="number" id="y2" min="-1000" max="1000" value="1">
       Y2
       <br>
-      <input type="text" id="text" value="" placeholder="text">
-      <br>
       <input type="button" onclick="runSelected()" value="Run Selected">
+      
+      <br>
+      <input type="button" value="Dynamic TransFormations">
+      <div data-tip="1 : True 0 : False ">
+        <input type="number" id="dynamicTrans" min="0" max="1" value="1">
+      </div>
       <br>
       <input type="button" value="Translate">
       <div data-tip="X Coordinate">
@@ -117,11 +122,15 @@
       <br>
       <input type="button" value="Ortographic Projection">
 
-      <div data-tip="Distancia focal">
-        <input type="number" id="ortoDistance" min="-1000" max="1000" value="200">
+      <div data-tip="Distancia focal" >
+        <div type="hidden">
+
+        
+        <input type="number" id="ortoDistance" min="-1000" max="1000" value="500">
+      </div>
       </div>
       <br>
-      <input type="button" value="Top (Default)">
+      <input type="button" value="Front (Default)">
 
       <div data-tip="1 : True 0 : False">
         <input type="number" id="ortoGraphicFrontal" min="0" max="1" value="1">
