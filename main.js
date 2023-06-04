@@ -857,15 +857,13 @@ function rasterizePolygon(data) {
   transformedPoly = scalePolygonMatrix(transformedPoly,data.scaleX,data.scaleY,data.scaleZ);
   transformedPoly = rotateXPolygonMatrix(transformedPoly, data.angleX, data.rotateXX, data.rotateXY);
   transformedPoly = rotateYPolygonMatrix(transformedPoly, data.angleY, data.rotateYX, data.rotateYY);
-  transformedPoly = rotateZPolygonMatrix(transformedPoly, data.angleZ, data.rotateZX, data.rotateZX);
-  //transformedPoly = perspectiveProjection(transformedPoly, data.perspectiveDistance);
-  //transformedPoly = conicProjection(transformedPoly, data.conicDistance);
-
-  //Frontal
-  //let vertices = transformedPoly[0].map((_, i) => [transformedPoly[0][i], transformedPoly[1][i]]);
-
+  transformedPoly = rotateZPolygonMatrix(transformedPoly, data.angleZ, data.rotateZX, data.rotateZX); 
+  
   let focalDistance = data.ortoDistance; 
+  //Ortographic Front
+  // if(data.ortoGraphicFrontal === 1){
 
+  
   let vertices = transformedPoly[0].map((_, i) => {
   let x = transformedPoly[0][i];
   let y = transformedPoly[1][i];
@@ -877,9 +875,43 @@ function rasterizePolygon(data) {
 
   return [projectedX, projectedY];
   });
+ 
+  if(data.ortoGraphicTop === 1){
 
+  
+  //Ortographic Top
+  vertices = transformedPoly[0].map((_, i) => {
+    let x = transformedPoly[0][i];
+    let y = transformedPoly[1][i];
+    let z = transformedPoly[2][i];
+  
+    let projectedX = x;
+    let projectedY = z;
+  
+    return [projectedX, projectedY];
+  });
+  }
+  if(data.ortoGraphicSide === 1){
+  //Ortographic Side
+  console.log("test");
+  vertices = transformedPoly[0].map((_, i) => {
+    let x = transformedPoly[0][i];
+    let y = transformedPoly[1][i];
+    let z = transformedPoly[2][i];
+  
+    let projectedX = y;
+    let projectedY = z;
+  
+    return [projectedX, projectedY];
+  });
+}
   let focalLength = data.perspectiveDistance;
 
+  console.log(data.perspectiveValue)
+  if(data.perspectiveValue === 1){
+
+  
+  //Perspective
   vertices = transformedPoly[0].map((_, i) => {
   let x = transformedPoly[0][i];
   let y = transformedPoly[1][i];
@@ -890,9 +922,7 @@ function rasterizePolygon(data) {
 
   return [projectedX, projectedY];
   });
-
-
-
+}
   console.log("vertices");
   console.log(vertices);
   let v1 = [];
@@ -973,7 +1003,10 @@ function getRasterValues() {
     scaleY: JSON.parse(document.getElementById('scaleY').value),
     scaleZ: JSON.parse(document.getElementById('scaleZ').value),
     ortoDistance: JSON.parse(document.getElementById('ortoDistance').value),
-    conicDistance: JSON.parse(document.getElementById('conicDistance').value),
+    ortoGraphicFrontal: JSON.parse(document.getElementById('ortoGraphicFrontal').value),
+    ortoGraphicTop: JSON.parse(document.getElementById('ortoGraphicTop').value),
+    ortoGraphicSide: JSON.parse(document.getElementById('ortoGraphicSide').value),
+    perspectiveValue: JSON.parse(document.getElementById('perspectiveValue').value),
     perspectiveDistance: JSON.parse(document.getElementById('perspectiveDistance').value),
     array: JSON.parse(document.getElementById('arrayInput').value),
     edges: JSON.parse(document.getElementById('edgesInput').value)
@@ -996,7 +1029,8 @@ function getRasterValues() {
     rotateZY: data.rotateZY,
     scaleX: data.scaleX,
     scaleY: data.scaleY,
-    scaleZ: data.scaleZ
+    scaleZ: data.scaleZ,
+    perspectiveValue: data.perspectiveValue
   });
   
   try {
