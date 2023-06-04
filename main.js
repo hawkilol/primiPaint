@@ -559,32 +559,7 @@ function translatePolygon(polygon, dx, dy) {
 //Rotation
 
 //Scaling
-function scalePolygon(polygon, scaleX, scaleY, fixedX, fixedY) {
-  const modifiedPolygon = [];
-  // Iterate over each vertex of the polygon
-  for (let i = 0; i < polygon.length; i++) {
-    const vertex = polygon[i];
 
-    const x = vertex[0];
-    const y = vertex[1];
-
-    // Translate the fixed point to the origin
-    const translatedX = x - fixedX;
-    const translatedY = y - fixedY;
-
-    // Apply the scaling factors
-    const scaledX = translatedX * scaleX;
-    const scaledY = translatedY * scaleY;
-
-    // Translate the scaled vertex back to its original position
-    vertex[0] = scaledX + fixedX;
-    vertex[1] = scaledY + fixedY;
-    modifiedPolygon.push(vertex);
-  }
-
-  polyLine(modifiedPolygon);
-  return modifiedPolygon
-}
 function scalePolygonMatrix(polygon, scaleX, scaleY, scaleZ) {
   // Create the scaling matrix
   const scalingMatrix = [
@@ -780,27 +755,6 @@ function applyProjection(polygon, projectionMatrix) {
 
   return transposeMatrix(projectedVertices);
 }
-
-function perspectiveProjection(polygon, distance) {
-  const perspectiveMatrix = [
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 1 / distance]
-  ];
-
-  return applyProjection(polygon, perspectiveMatrix);
-}
-
-function conicProjection(polygon, distance) {
-  const conicMatrix = [
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, distance]
-  ];
-
-  return applyProjection(polygon, conicMatrix);
-}
-
 
 function rasterizePolygon(data) {
   if(data.dynamicTrans === 1){
