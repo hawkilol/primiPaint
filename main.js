@@ -1,3 +1,6 @@
+//Alunos:
+// Kalil Saldanha Kaliffe / 202004940030
+// PEDRO INACIO DE CARVALHO JUNIOR / 202004940011
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d", { alpha: false });
 let color = document.getElementById("color-picker").value;
